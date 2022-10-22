@@ -19,6 +19,7 @@ using SBEU.Tasklet.Models.Responses;
 
 namespace SBEU.Tasklet.Api.Controllers
 {
+    [Obsolete]
     public class AuthManagementController : Controller
     {
         private readonly UserManager<XIdentityUser> _userManager;

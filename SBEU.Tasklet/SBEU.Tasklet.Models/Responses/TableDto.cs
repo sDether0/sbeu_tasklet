@@ -13,7 +13,7 @@ namespace SBEU.Tasklet.Models.Responses
     {
         public string Id { get; set; }
         public string Title { get; set; }
-        public virtual List<TaskDto> Tasks { get; set; }
+        //public virtual List<TaskDto> Tasks { get; set; }
         public virtual List<UserDto> Users { get; set; }
     }
 }

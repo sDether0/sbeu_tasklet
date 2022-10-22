@@ -15,6 +15,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 using System.Text;
+using AutoMapper;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
 {
@@ -24,10 +26,12 @@ namespace SBEU.Tasklet.Api.Controllers
         private readonly UserManager<XIdentityUser> _userManager;
         private readonly ApiDbContext _context;
         private readonly JwtConfig _jwtConfig;
-        public UserController(UserManager<XIdentityUser> userManager, ApiDbContext context, IOptionsMonitor<JwtConfig> optionsMonitor)
+        private readonly IMapper _mapper;
+        public UserController(UserManager<XIdentityUser> userManager, ApiDbContext context, IOptionsMonitor<JwtConfig> optionsMonitor, IMapper mapper)
         {
             _userManager = userManager;
             _context = context;
+            _mapper = mapper;
             _jwtConfig = optionsMonitor.CurrentValue;
         }
 
@@ -51,6 +55,15 @@ namespace SBEU.Tasklet.Api.Controllers
 
             var hash = await user.SendConfirmationEmail(_context);
             return Json(new { Code = hash });
+        }
+
+        [SwaggerResponse(200,"",typeof(IEnumerable<UserDto>))]
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var users = _context.Users.ToList();
+            var usersDto = users.Select(_mapper.Map<UserDto>);
+            return Json(usersDto);
         }
 
         [HttpPost("confirm")]

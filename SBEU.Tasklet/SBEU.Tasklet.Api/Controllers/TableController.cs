@@ -1,11 +1,14 @@
 ﻿using AutoMapper;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+
 using SBEU.Tasklet.Api.Service;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
 using SBEU.Tasklet.Models.Requests;
 using SBEU.Tasklet.Models.Responses;
+
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
@@ -23,12 +26,11 @@ namespace SBEU.Tasklet.Api.Controllers
             _mapper = mapper;
         }
 
-        [SwaggerResponse(200,"",typeof(IEnumerable<TableDto>))]
+        [SwaggerResponse(200, "", typeof(IEnumerable<TableDto>))]
         [HttpGet]
-        public async Task<IActionResult> Get()
+        public async Task<IActionResult> GetAll()
         {
-            var user = _context.Users.Include(x => x.Tables).ThenInclude(x => x.Tasks)
-                .FirstOrDefault(x => x.Id == UserId);
+            var user = _context.Users.Include(x => x.Tables).FirstOrDefault(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
@@ -65,7 +67,7 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 return NotFound("User was not identify");
             }
-            var table = _context.XTables.Include(x=>x.Users).FirstOrDefault(x=>x.Id==request.Id);
+            var table = _context.XTables.Include(x => x.Users).FirstOrDefault(x => x.Id == request.Id);
             if (table == null)
             {
                 return NotFound();
@@ -74,7 +76,7 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 return Unauthorized();
             }
-            table.Title = request.Title??table.Title;
+            table.Title = request.Title ?? table.Title;
             if (request.Users != null)
             {
                 foreach (var usr in request.Users)
@@ -96,7 +98,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("adduser")]
         public async Task<IActionResult> AddUser([FromBody] AddUserToTableRequest request)
         {
-            var user = await _context.Users.Include(x=>x.Tables).FirstOrDefaultAsync(x=>x.Id==UserId);
+            var user = await _context.Users.Include(x => x.Tables).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound("User was not identify");
@@ -109,8 +111,8 @@ namespace SBEU.Tasklet.Api.Controllers
 
             if (user.Tables.Any(x => x.Id == request.TableId))
             {
-                var table = await _context.XTables.Include(x=>x.Users).FirstOrDefaultAsync(x=>x.Id==request.TableId);
-                if(!table.Users.Any(x=>x.Id==request.UserId))
+                var table = await _context.XTables.Include(x => x.Users).FirstOrDefaultAsync(x => x.Id == request.TableId);
+                if (!table.Users.Any(x => x.Id == request.UserId))
                 {
                     table.Users.Add(addUser);
                     _context.Update(table);

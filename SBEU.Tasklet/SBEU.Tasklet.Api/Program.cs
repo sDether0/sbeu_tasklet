@@ -8,7 +8,8 @@ using SBEU.Tasklet.Api.Models;
 using SBEU.Tasklet.Api.Service;
 
 using System.Text;
-
+using AutoMapper.Internal;
+using SBEU.Tasklet.Api.Hubs;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
 
@@ -20,11 +21,12 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddAutoMapper((cfg) =>
+builder.Services.AddAutoMapper(cfg =>
 {
     cfg.AddProfile<UserProfile>();
+    cfg.Internal().MethodMappingEnabled = false;
 });
-
+builder.Services.AddSignalR();
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
@@ -113,7 +115,8 @@ app.UseCors();
 app.UseAuthorization();
 app.UseAuthentication();
 app.MapControllers();
-
+app.MapHub<ChatHub>("/chathub");
+app.MapHub<TaskHub>("/taskhub");
 var d= app.Services.GetRequiredService<DeadLiner>();
 d.Start();
 app.Run();

@@ -46,6 +46,7 @@ namespace SBEU.Tasklet.Api.Controllers
             return Json(chatsDto);
         }
 
+        [SwaggerResponse(200, "", typeof(IEnumerable<FullChatDto>))]
         [HttpGet("{chatId}")]
         public async Task<IActionResult> GetById(string chatId)
         {
