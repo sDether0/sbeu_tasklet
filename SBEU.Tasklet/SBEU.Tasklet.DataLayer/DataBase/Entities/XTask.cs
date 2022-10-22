@@ -1,0 +1,23 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using SBEU.Tasklet.Models.Enums;
+
+namespace SBEU.Tasklet.DataLayer.DataBase.Entities
+{
+    public class XTask : IEntity
+    {
+        public string Id { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime StartTime { get; set; }
+        public TaskDuration Duration { get; set; }
+        public bool Hidden { get; set; }
+        public virtual XTable Table { get; set; }
+        public virtual XIdentityUser Author { get; set; }
+        public virtual XIdentityUser Executor { get; set; }
+        public virtual ICollection<Note> Notes { get; set; }
+    }
+}
