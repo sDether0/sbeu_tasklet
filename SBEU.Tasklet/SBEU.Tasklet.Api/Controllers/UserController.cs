@@ -70,7 +70,6 @@ namespace SBEU.Tasklet.Api.Controllers
                 var jwt = await GenerateJwtToken(confirmation.User);
                 return Json(jwt);
             }
-            
             return BadRequest("Invalid mail code");
         }
 
