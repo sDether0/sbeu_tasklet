@@ -9,6 +9,8 @@ using SBEU.Tasklet.Api.Service;
 
 using System.Text;
 using AutoMapper.Internal;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 using SBEU.Tasklet.Api.Hubs;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
@@ -17,7 +19,10 @@ using SBEU.Tasklet.DataLayer.DataBase.Entities;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
+builder.Services.AddSingleton(FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("./firetasklet.json")
+}));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -103,6 +108,7 @@ builder.Services.AddDefaultIdentity<XIdentityUser>(options => options.SignIn.Req
 builder.Services.AddSingleton<DeadLiner>();
 var app = builder.Build();
 
+app.Urls.Add("https://0.0.0.0:54543");
 app.Urls.Add("http://0.0.0.0:54542");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

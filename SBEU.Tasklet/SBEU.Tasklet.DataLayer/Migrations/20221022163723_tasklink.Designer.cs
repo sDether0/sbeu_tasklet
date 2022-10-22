@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SBEU.Tasklet.DataLayer.DataBase;
@@ -12,9 +13,10 @@ using SBEU.Tasklet.DataLayer.DataBase;
 namespace SBEU.Tasklet.DataLayer.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221022163723_tasklink")]
+    partial class tasklink
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -35,7 +37,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("ChatXIdentityUser", (string)null);
+                    b.ToTable("ChatXIdentityUser");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -187,7 +189,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Chats", (string)null);
+                    b.ToTable("Chats");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.Note", b =>
@@ -208,7 +210,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Note", (string)null);
+                    b.ToTable("Note");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.RefreshToken", b =>
@@ -247,7 +249,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens", (string)null);
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XIdentityUser", b =>
@@ -267,9 +269,6 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                         .HasColumnType("character varying(256)");
 
                     b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("boolean");
-
-                    b.Property<bool>("IsPushOn")
                         .HasColumnType("boolean");
 
                     b.Property<bool>("LockoutEnabled")
@@ -340,7 +339,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserConfirmations", (string)null);
+                    b.ToTable("UserConfirmations");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XMessage", b =>
@@ -381,7 +380,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("TaskId");
 
-                    b.ToTable("Messages", (string)null);
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XTable", b =>
@@ -395,7 +394,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("XTables", (string)null);
+                    b.ToTable("XTables");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XTask", b =>
@@ -428,9 +427,6 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("integer");
-
                     b.Property<string>("TableId")
                         .IsRequired()
                         .HasColumnType("text");
@@ -447,7 +443,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("TableId");
 
-                    b.ToTable("XTasks", (string)null);
+                    b.ToTable("XTasks");
                 });
 
             modelBuilder.Entity("XIdentityUserXTable", b =>
@@ -462,7 +458,7 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.HasIndex("UsersId");
 
-                    b.ToTable("XIdentityUserXTable", (string)null);
+                    b.ToTable("XIdentityUserXTable");
                 });
 
             modelBuilder.Entity("ChatXIdentityUser", b =>

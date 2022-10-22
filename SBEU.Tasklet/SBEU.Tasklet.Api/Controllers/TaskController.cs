@@ -1,13 +1,17 @@
 ﻿using AutoMapper;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+
 using SBEU.Tasklet.Api.Hubs;
 using SBEU.Tasklet.Api.Service;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
+using SBEU.Tasklet.Models.Enums;
 using SBEU.Tasklet.Models.Requests;
 using SBEU.Tasklet.Models.Responses;
+
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
@@ -30,7 +34,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = await _context.Users.Include(x => x.Tasks).Include(x=>x.AuthoredTasks).Include(x => x.Notes)
+            var user = await _context.Users.Include(x => x.Tasks).Include(x => x.AuthoredTasks).Include(x => x.Notes)
                 .FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -46,29 +50,36 @@ namespace SBEU.Tasklet.Api.Controllers
             }
             return Json(tasksDto);
         }
-        
+
         [SwaggerResponse(200, "", typeof(IEnumerable<TaskDto>))]
         [HttpGet("{tableId}")]
         public async Task<IActionResult> GetByTable(string tableId)
         {
-            var user = await _context.Users.Include(x => x.Tables).ThenInclude(x => x.Tasks).Include(x=>x.Notes)
-                .FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users
+                .Include(x => x.Tables).ThenInclude(x => x.Tasks).ThenInclude(x => x.Executor)
+                .Include(x => x.Tables).ThenInclude(x => x.Tasks).ThenInclude(x => x.Author)
+                .Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
             }
-            var tasks = user.Tables.FirstOrDefault(x=>x.Id==tableId)?.Tasks;
-            if (tasks == null)
+            var table = user.Tables.FirstOrDefault(x => x.Id == tableId);
+            if (table == null)
             {
                 return NotFound();
             }
-
-            var tasksDto = tasks.Select(_mapper.Map<TaskDto>);
-            foreach (var task in tasksDto)
+            var tasks = table.Tasks;
+            if (tasks.Count==0)
             {
-                task.Note = user.Notes.FirstOrDefault(x => x.TaskId == task.Id)?.Text ?? "";
-                task.IsAuthor = task.Author.Id==user.Id;
-                task.IsExecutor = task.Executor.Id==user.Id;
+                return Json(new object[] { });
+            }
+
+            var tasksDto = tasks.Select(_mapper.Map<TaskDto>).ToList();
+            for (var i = 0; i < tasksDto.Count; i++)
+            {
+                tasksDto[i].Note = user.Notes.FirstOrDefault(x => x.TaskId == tasksDto[i].Id)?.Text ?? "";
+                tasksDto[i].IsAuthor = tasksDto[i].Author.Id == user.Id;
+                tasksDto[i].IsExecutor = tasksDto[i].Executor.Id == user.Id;
             }
             return Json(tasksDto);
         }
@@ -77,14 +88,14 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskRequest request)
         {
-            var user = await _context.Users.Include(x=>x.Tables).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.Include(x => x.Tables).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
             }
             var task = _mapper.Map<XTask>(request);
             task.Id = Guid.NewGuid().ToString();
-            
+
             if (!_context.XTables.Any(x => x.Id == task.Table.Id))
             {
                 return NotFound("Table not found");
@@ -101,13 +112,13 @@ namespace SBEU.Tasklet.Api.Controllers
                 return BadRequest("User has not access to that table");
             }
             task.Executor = task.Executor.Id.Get<XIdentityUser>(_context);
-            
-            task.StartTime= request.StartTime??DateTime.Now;
+            task.Status = request.Status ?? TaskProgress.New;
+            task.StartTime = request.StartTime ?? DateTime.Now;
             await _context.XTasks.AddAsync(task);
             await _context.SaveChangesAsync();
             var taskDto = _mapper.Map<TaskDto>(task);
             var tableUsers = _context.XTables.Include(x => x.Users).FirstOrDefault(x => x.Id == task.Table.Id)?.Users
-                .Select(x => x.Id)??Enumerable.Empty<string>();
+                .Select(x => x.Id) ?? Enumerable.Empty<string>();
             if (task.Hidden)
             {
                 await _taskHub.Clients.Users(task.Author.Id, task.Executor.Id).NewTask(taskDto);
@@ -121,9 +132,9 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(TaskDto))]
         [HttpPatch]
-        public async Task<IActionResult> Update([FromBody]UpdateTaskRequest request)
+        public async Task<IActionResult> Update([FromBody] UpdateTaskRequest request)
         {
-            var user = await _context.Users.Include(x=>x.Tasks).Include(x=>x.AuthoredTasks).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.Include(x => x.Tasks).Include(x => x.AuthoredTasks).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
@@ -131,8 +142,8 @@ namespace SBEU.Tasklet.Api.Controllers
             var task = request.Id.Get<XTask>(_context);
             if (user.Tasks.Contains(task) || user.AuthoredTasks.Contains(task))
             {
-                task.Title = request.Title??task.Title;
-                task.Description = request.Description??task.Description;
+                task.Title = request.Title ?? task.Title;
+                task.Description = request.Description ?? task.Description;
                 if (request.ExecutorId != null)
                 {
                     if (_context.XTables.Include(x => x.Users).FirstOrDefault(x => x.Id == task.Table.Id)!.Users.All(x => x.Id != request.ExecutorId))
@@ -141,6 +152,8 @@ namespace SBEU.Tasklet.Api.Controllers
                     }
                     task.Executor = request.ExecutorId.Get<XIdentityUser>(_context);
                 }
+                task.Status = request.Status ?? TaskProgress.New;
+                task.Links = request.Links ?? task.Links;
 
                 _context.Update(task);
                 await _context.SaveChangesAsync();
@@ -162,7 +175,7 @@ namespace SBEU.Tasklet.Api.Controllers
         }
 
         [HttpPost("note")]
-        public async Task<IActionResult> AddNote([FromBody]NoteRequest request)
+        public async Task<IActionResult> AddNote([FromBody] NoteRequest request)
         {
             var user = await _context.Users.FindAsync(UserId);
             var task = await _context.XTasks.FindAsync(request.TaskId);

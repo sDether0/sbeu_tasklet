@@ -14,6 +14,7 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         }
 
         public string? PushToken { get; set; }
+        public bool IsPushOn { get; set; }
         public virtual ICollection<Chat> Chats { get; set; }
         public virtual ICollection<XIdentityUserConfirm> Confirmations { get; set; }
         public virtual ICollection<XTable> Tables { get; set; }

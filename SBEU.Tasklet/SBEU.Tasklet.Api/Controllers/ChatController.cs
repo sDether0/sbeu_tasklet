@@ -1,13 +1,18 @@
 ﻿using AutoMapper;
+
+using FirebaseAdmin.Messaging;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
+
 using SBEU.Tasklet.Api.Hubs;
 using SBEU.Tasklet.Api.Service;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
 using SBEU.Tasklet.Models.Requests;
 using SBEU.Tasklet.Models.Responses;
+
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
@@ -26,7 +31,7 @@ namespace SBEU.Tasklet.Api.Controllers
             _chatHub = chatHub;
         }
 
-        [SwaggerResponse(200,"",typeof(IEnumerable<ChatDto>))]
+        [SwaggerResponse(200, "", typeof(IEnumerable<ChatDto>))]
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
@@ -42,6 +47,9 @@ namespace SBEU.Tasklet.Api.Controllers
                 {
                     chat.Title = user.Chats!.First(x => x.Id == chat.Id)!.Users!.First(x => x.Id != user.Id)!.UserName!;
                 }
+
+                chat.LastMessage = _context.Messages.Where(x => x.Chat.Id == chat.Id).OrderByDescending(x => x.Time)
+                    .First().Text;
             }
             return Json(chatsDto);
         }
@@ -70,7 +78,7 @@ namespace SBEU.Tasklet.Api.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> CreateChat([FromBody]CreateChatRequest request)
+        public async Task<IActionResult> CreateChat([FromBody] CreateChatRequest request)
         {
             var user = await _context.Users.FindAsync(UserId);
             if (user == null)
@@ -113,7 +121,7 @@ namespace SBEU.Tasklet.Api.Controllers
         }
 
         [HttpPost("message")]
-        public async Task<IActionResult> SendMessage([FromBody]MessageRequest request)
+        public async Task<IActionResult> SendMessage([FromBody] MessageRequest request)
         {
             var user = _context.Users.FirstOrDefault(x => x.Id == UserId);
             if (user == null)
@@ -129,9 +137,47 @@ namespace SBEU.Tasklet.Api.Controllers
             await _context.Messages.AddAsync(mess);
             await _context.SaveChangesAsync();
             var messDto = _mapper.Map<MessageDto>(mess);
+
+            if (mess.Chat.Private && _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
+                    .First(x => x.Id != user.Id).IsPushOn)
+            {
+                await Send(
+                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
+                        .Select(x => x.PushToken).ToList(),
+                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
+                        .First(x => x.Id != user.Id).UserName, mess.Text);
+            }
+            else
+            {
+                await Send(
+                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users.Where(x => x.IsPushOn)
+                        .Select(x => x.PushToken).ToList(), mess.Chat.Title, mess.Text);
+            }
+
+
             await _chatHub.Clients.Group(mess.Chat.Id).Message(messDto);
             return Ok();
         }
-        
+
+
+        private async Task Send(List<string> tokens, string chat, string text)
+        {
+            MulticastMessage message;
+            message = new MulticastMessage()
+            {
+                Tokens = tokens,
+                Data = new Dictionary<string, string>()
+                {
+                    {"title", chat},
+                    {"body", text},
+                },
+                Notification = new Notification()
+                {
+                    Title = chat,
+                    Body = text
+                }
+            };
+            await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+        }
     }
 }

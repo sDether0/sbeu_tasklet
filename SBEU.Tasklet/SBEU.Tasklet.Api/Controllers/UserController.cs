@@ -96,6 +96,22 @@ namespace SBEU.Tasklet.Api.Controllers
                 return NotFound("User was not found or identify");
             }
             user.PushToken = request.PushToken;
+            user.IsPushOn = true;
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpPost("switchPush/{bit}")]
+        public async Task<IActionResult> SwitchPush(bool bit)
+        {
+            var user = await _context.Users.FindAsync(UserId);
+            if (user == null)
+            {
+                return NotFound("User was not found or identify");
+            }
+
+            user.IsPushOn = bit;
             _context.Update(user);
             await _context.SaveChangesAsync();
             return Ok();

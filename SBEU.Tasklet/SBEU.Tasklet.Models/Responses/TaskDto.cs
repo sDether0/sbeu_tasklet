@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
+
 using SBEU.Tasklet.Models.Enums;
 
 using System;
@@ -16,6 +17,8 @@ namespace SBEU.Tasklet.Models.Responses
         public string Description { get; set; }
         public DateTime StartTime { get; set; }
         public TaskDuration Duration { get; set; }
+        public TaskProgress Status { get; set; }
+        public List<string> Links { get; set; }
         public bool Hidden { get; set; }
         public string Note { get; set; }
         public UserDto Author { get; set; }

@@ -13,6 +13,7 @@ namespace SBEU.Tasklet.Models.Responses
         public string Id { get; set; }
         public string Title { get; set; }
         public bool Private { get; set; }
+        public string LastMessage { get; set; }
         
     }
 

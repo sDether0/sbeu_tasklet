@@ -27,6 +27,8 @@ namespace SBEU.Tasklet.DataLayer.DataBase
             builder.Entity<Note>().HasIndex(x=>x.UserId);
             builder.Entity<XIdentityUser>().HasMany(x=>x.Notes).WithOne().HasForeignKey(x=>x.UserId);
             builder.Entity<XTask>().HasMany(x => x.Notes).WithOne().HasForeignKey(x => x.TaskId);
+            builder.Entity<XTask>().Property(x => x.StartTime).HasConversion(to=>to.ToUniversalTime(),from=>from.ToUniversalTime());
+            builder.Entity<XMessage>().Property(x => x.Time).HasConversion(to => to.ToUniversalTime(), from => from.ToUniversalTime());
             base.OnModelCreating(builder);
         }
         

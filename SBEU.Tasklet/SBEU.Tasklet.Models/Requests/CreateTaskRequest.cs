@@ -18,8 +18,10 @@ namespace SBEU.Tasklet.Models.Requests
         [Required]
         public string Description { get; set; }
         public DateTime? StartTime { get; set; }
+        public List<string>? Links { get; set; }
         [Required]
         public TaskDuration Duration { get; set; }
+        public TaskProgress? Status { get; set; }
         [Required]
         public bool Hidden { get; set; }
         [Required]

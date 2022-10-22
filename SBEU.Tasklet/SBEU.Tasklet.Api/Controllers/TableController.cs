@@ -30,7 +30,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = _context.Users.Include(x => x.Tables).FirstOrDefault(x => x.Id == UserId);
+            var user = _context.Users.Include(x => x.Tables).ThenInclude(x=>x.Users).FirstOrDefault(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
@@ -51,7 +51,11 @@ namespace SBEU.Tasklet.Api.Controllers
             }
             var table = _mapper.Map<XTable>(request);
             table.Id = Guid.NewGuid().ToString();
-            table.Users.Add(user);
+            table.Users = table.Users.Select(x => x.Id.Get<XIdentityUser>(_context)).ToList();
+            if (!table.Users.Contains(user))
+            {
+                table.Users.Add(user);
+            }
             await _context.XTables.AddAsync(table);
             await _context.SaveChangesAsync();
             var tableDto = _mapper.Map<TableDto>(table);
