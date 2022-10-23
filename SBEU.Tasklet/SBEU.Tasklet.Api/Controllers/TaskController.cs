@@ -1,5 +1,7 @@
 ﻿using AutoMapper;
 
+using FirebaseAdmin.Messaging;
+
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -34,19 +36,20 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = await _context.Users.Include(x => x.Tasks).Include(x => x.AuthoredTasks).Include(x => x.Notes)
+            var user = await _context.Users.Include(x => x.Tasks).ThenInclude(x=>x.Author)
+                .Include(x => x.AuthoredTasks).ThenInclude(x=>x.Executor).Include(x => x.Notes)
                 .FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
             }
             var tasks = user.Tasks.Concat(user.AuthoredTasks);
-            var tasksDto = tasks.Select(_mapper.Map<TaskDto>);
-            foreach (var task in tasksDto)
+            var tasksDto = tasks.Select(_mapper.Map<TaskDto>).ToList();
+            for (var i = 0; i < tasksDto.Count; i++)
             {
-                task.Note = user.Notes.FirstOrDefault(x => x.TaskId == task.Id)?.Text ?? "";
-                task.IsAuthor = task.Author.Id == user.Id;
-                task.IsExecutor = task.Executor.Id == user.Id;
+                tasksDto[i].Note = user.Notes.FirstOrDefault(x => x.TaskId == tasksDto[i].Id)?.Text ?? "";
+                tasksDto[i].IsAuthor = tasksDto[i].Author.Id == user.Id;
+                tasksDto[i].IsExecutor = tasksDto[i].Executor.Id == user.Id;
             }
             return Json(tasksDto);
         }
@@ -127,6 +130,27 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 await _taskHub.Clients.Users(tableUsers).NewTask(taskDto);
             }
+
+            if (task.Executor.PushToken != null)
+            {
+                MulticastMessage message;
+                message = new MulticastMessage()
+                {
+                    Tokens = new[] { task.Executor.PushToken },
+                    Data = new Dictionary<string, string>()
+                    {
+                        { "title", "У вас новая задача" },
+                        { "body", $"{task.Title}" },
+                    },
+                    Notification = new Notification()
+                    {
+                        Title = "У вас новая задача",
+                        Body = $"{task.Title}"
+                    }
+                };
+                await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+            }
+
             return Json(taskDto);
         }
 
@@ -139,7 +163,7 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 return NotFound();
             }
-            var task = request.Id.Get<XTask>(_context);
+            var task = _context.XTasks.Include(x=>x.Table).Include(x=>x.Executor).FirstOrDefault(x=>x.Id==request.Id);
             if (user.Tasks.Contains(task) || user.AuthoredTasks.Contains(task))
             {
                 task.Title = request.Title ?? task.Title;

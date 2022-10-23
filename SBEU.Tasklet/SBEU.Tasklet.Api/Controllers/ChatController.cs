@@ -35,21 +35,21 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = await _context.Users.Include(x => x.Chats).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.Include(x => x.Chats).ThenInclude(x=>x.Users).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound("User was not identify");
             }
-            var chatsDto = user.Chats.Select(_mapper.Map<ChatDto>);
-            foreach (var chat in chatsDto)
+            var chatsDto = user.Chats.Select(_mapper.Map<ChatDto>).ToList();
+            for (var i=0;i<chatsDto.Count;i++)
             {
-                if (chat.Private)
+                if (chatsDto[i].Private)
                 {
-                    chat.Title = user.Chats!.First(x => x.Id == chat.Id)!.Users!.First(x => x.Id != user.Id)!.UserName!;
+                    chatsDto[i].Title = user.Chats!.First(x => x.Id == chatsDto[i].Id)!.Users!.First(x => x.Id != user.Id)!.UserName!;
                 }
 
-                chat.LastMessage = _context.Messages.Where(x => x.Chat.Id == chat.Id).OrderByDescending(x => x.Time)
-                    .First().Text;
+                chatsDto[i].LastMessage = _context.Messages?.Where(x => x.Chat.Id == chatsDto[i].Id)?.OrderByDescending(x => x.Time)?
+                    .FirstOrDefault()?.Text??"There are no messages yet";
             }
             return Json(chatsDto);
         }

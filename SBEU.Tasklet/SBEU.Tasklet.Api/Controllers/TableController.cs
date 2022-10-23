@@ -72,6 +72,7 @@ namespace SBEU.Tasklet.Api.Controllers
                 return NotFound("User was not identify");
             }
             var table = _context.XTables.Include(x => x.Users).FirstOrDefault(x => x.Id == request.Id);
+
             if (table == null)
             {
                 return NotFound();

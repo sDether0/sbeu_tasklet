@@ -6,6 +6,8 @@ using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.Models.Responses;
 
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 namespace SBEU.Tasklet.Api.Hubs
@@ -15,6 +17,7 @@ namespace SBEU.Tasklet.Api.Hubs
         public Task UpdateTask(TaskDto task);
         public Task NewTask(TaskDto task);
     }
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TaskHub : Hub<IXTask>
     {
         private readonly ApiDbContext _context;

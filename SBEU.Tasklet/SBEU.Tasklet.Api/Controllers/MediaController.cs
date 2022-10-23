@@ -6,7 +6,7 @@ namespace SBEU.Tasklet.Api.Controllers
     [Route("[controller]")]
     public class MediaController : ControllerExt
     {
-        private string url = "http://sbeusilent.space:35658/";
+        private string url = "https://sbeusilent.space/";
 
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(IFormFile file)

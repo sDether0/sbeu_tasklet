@@ -16,6 +16,7 @@ using System.Security.Claims;
 
 using System.Text;
 using AutoMapper;
+using FirebaseAdmin.Messaging;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
@@ -114,6 +115,33 @@ namespace SBEU.Tasklet.Api.Controllers
             user.IsPushOn = bit;
             _context.Update(user);
             await _context.SaveChangesAsync();
+            return Ok();
+        }
+
+        [HttpGet("push")]
+        public async Task<IActionResult> Push()
+        {
+            var user = await _context.Users.FindAsync(UserId);
+            if (user == null)
+            {
+                return NotFound("User was not found or identify");
+            }
+            MulticastMessage message;
+            message = new MulticastMessage()
+            {
+                Tokens = new []{ user.PushToken},
+                Data = new Dictionary<string, string>()
+                {
+                    {"title", "Test push"},
+                    {"body", $"Test push"},
+                },
+                Notification = new Notification()
+                {
+                    Title = "Test push",
+                    Body = $"Test push"
+                }
+            };
+            await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
             return Ok();
         }
 

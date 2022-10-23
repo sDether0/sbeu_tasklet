@@ -11,6 +11,10 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         {
             Chats??= new HashSet<Chat>();
             Confirmations ??= new HashSet<XIdentityUserConfirm>();
+            Notes ??= new HashSet<Note>();
+            Tasks ??= new HashSet<XTask>();
+            Tables ??= new HashSet<XTable>();
+            AuthoredTasks ??= new HashSet<XTask>();
         }
 
         public string? PushToken { get; set; }
