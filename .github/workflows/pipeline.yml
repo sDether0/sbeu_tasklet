@@ -1,0 +1,73 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ master, dev]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # phase 1 build
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+
+      # SEE https://docs.github.com/en/actions/learn-github-actions/environment-variables
+      # SEE https://docs.github.com/en/actions/learn-github-actions/workflow-commands-for-github-actions#setting-an-environment-variable
+      - name: Set ci ref name env
+        run: |
+          echo "CI_REF_NAME=$([ ${GITHUB_EVENT_NAME} = pull_request ] && echo ${GITHUB_BASE_REF} || echo ${GITHUB_REF} | cut -d'/' -f3)" >> $GITHUB_ENV
+      - name: Check CI ref name
+        run: echo "${{ env.CI_REF_NAME }}"
+
+      - name: Set env
+        run: |
+          # SEE https://stackoverflow.com/a/59797129
+          echo "IMAGE_TAG=$([ ${{ env.CI_REF_NAME }} = master ] && echo 'latest' || ([ ${{ env.CI_REF_NAME }} = dev ] && echo 'latest-test'))" >> $GITHUB_ENV
+          # SEE https://stackoverflow.com/a/61560798
+          echo "REPO_NAME=${GITHUB_REPOSITORY#*/}" >> $GITHUB_ENV
+          echo "USED_BRANCH=${{ env.CI_REF_NAME }}" >> $GITHUB_ENV
+      # print image tag
+      # SEE https://stackoverflow.com/a/58035262
+      # SEE https://stackoverflow.com/a/62805013
+      - name: Print some useful info
+        run: echo "Build image '${{ env.REPO_NAME }}:${{ env.IMAGE_TAG }}' for branch '${{ env.USED_BRANCH }}'"
+
+      # Login to Github container Registry
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build and push results
+      - name: Build and push Docker images
+        uses: docker/build-push-action@v2.7.0
+        with:
+          context: ./
+          push: true
+          tags: ghcr.io/silentst/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG }}
+          #build-args:
+
+  deploy:
+    needs: [build]
+    runs-on: [ubuntu-latest]
+    steps:
+      - name: Set ci repo name env
+        run: |
+          echo "GITHUB_REPO_NAME=$(echo "${{ github.repository }}" | sed 's/\//-/g')" >> $GITHUB_ENV
+      - name: Set ci server name env
+        run: |
+          # SEE https://stackoverflow.com/a/59797129
+          echo "DEPLOYMENT_SERVER=$([ ${{ env.CI_REF_NAME }} = master ] && echo '${{ secrets.DEPLOYMENT_SERVER_PROD }}' || echo '${{ secrets.DEPLOYMENT_SERVER }}')" >> $GITHUB_ENV
+          
+      - name: Send webhook for deploy
+        run: "curl --silent --show-error --fail -X POST 'https://${{ env.DEPLOYMENT_SERVER }}/hooks/deploy?token=${{ secrets.DEPLOYMENT_TOKEN }}&repo=${{ env.GITHUB_REPO_NAME }}'"
