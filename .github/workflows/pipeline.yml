@@ -54,7 +54,7 @@ jobs:
         with:
           context: ./
           push: true
-          tags: dockim.task.sbeusilent.space/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG }}
+          tags: ghcr.io/sdether0/${{ env.REPO_NAME }}:${{ env.IMAGE_TAG }}
           #build-args:
 
   deploy:
@@ -70,4 +70,4 @@ jobs:
           echo "DEPLOYMENT_SERVER=$([ ${{ env.CI_REF_NAME }} = master ] && echo '${{ secrets.DEPLOYMENT_SERVER_PROD }}' || echo '${{ secrets.DEPLOYMENT_SERVER }}')" >> $GITHUB_ENV
           
       - name: Send webhook for deploy
-        run: "curl --silent --show-error --fail -X POST 'https://${{ env.DEPLOYMENT_SERVER }}/hooks/deploy?token=${{ secrets.DEPLOYMENT_TOKEN }}&repo=${{ env.GITHUB_REPO_NAME }}'"
+        run: "curl --silent --show-error --fail -X POST 'http://${{ env.DEPLOYMENT_SERVER }}/hooks/deploy?token=${{ secrets.DEPLOYMENT_TOKEN }}&repo=${{ env.GITHUB_REPO_NAME }}'"
