@@ -119,7 +119,7 @@ builder.Services.AddDefaultIdentity<XIdentityUser>(options => options.SignIn.Req
 builder.Services.AddSingleton<DeadLiner>();
 var app = builder.Build();
 
-app.Urls.Add("https://0.0.0.0:54543");
+//app.Urls.Add("https://0.0.0.0:54543");
 app.Urls.Add("http://0.0.0.0:54542");
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
