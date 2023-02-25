@@ -34,16 +34,16 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(IEnumerable<TaskDto>))]
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] int skip = 0, [FromQuery] int take = 30)
         {
-            var user = await _context.Users.Include(x => x.Tasks).ThenInclude(x=>x.Author)
-                .Include(x => x.AuthoredTasks).ThenInclude(x=>x.Executor).Include(x => x.Notes)
+            var user = await _context.Users.Include(x => x.Tasks).ThenInclude(x => x.Author)
+                .Include(x => x.AuthoredTasks).ThenInclude(x => x.Executor).Include(x => x.Notes)
                 .FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
             }
-            var tasks = user.Tasks.Concat(user.AuthoredTasks);
+            var tasks = user.Tasks.Concat(user.AuthoredTasks).Distinct().Skip(skip).Take(take);
             var tasksDto = tasks.Select(_mapper.Map<TaskDto>).ToList();
             for (var i = 0; i < tasksDto.Count; i++)
             {
@@ -51,12 +51,31 @@ namespace SBEU.Tasklet.Api.Controllers
                 tasksDto[i].IsAuthor = tasksDto[i].Author.Id == user.Id;
                 tasksDto[i].IsExecutor = tasksDto[i].Executor.Id == user.Id;
             }
-            return Json(tasksDto);
+            var tasksHid = tasksDto.Where(x => !x.Hidden || (x.IsAuthor || x.IsExecutor));
+            return Json(tasksHid);
+        }
+
+
+        [SwaggerResponse(200, "", typeof(TaskDto))]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(string id)
+        {
+            var user = await _context.Users.Include(x=>x.Notes).FirstOrDefaultAsync(x => x.Id == UserId);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var task = await _context.XTasks.Include(x=>x.Author).Include(x=>x.Executor).FirstOrDefaultAsync(x=>x.Id==id);
+            var dto = _mapper.Map<TaskDto>(task);
+            dto.IsAuthor = task.Author.Id == UserId;
+            dto.IsExecutor = task.Executor.Id == UserId;
+            dto.Note = user.Notes.FirstOrDefault(x => x.TaskId == task.Id)?.Text ?? "";
+            return Json(dto);
         }
 
         [SwaggerResponse(200, "", typeof(IEnumerable<TaskDto>))]
-        [HttpGet("{tableId}")]
-        public async Task<IActionResult> GetByTable(string tableId)
+        [HttpGet("table/{tableId}")]
+        public async Task<IActionResult> GetByTable(string tableId, [FromQuery]int skip = 0, [FromQuery]int take = 30)
         {
             var user = await _context.Users
                 .Include(x => x.Tables).ThenInclude(x => x.Tasks).ThenInclude(x => x.Executor)
@@ -72,19 +91,21 @@ namespace SBEU.Tasklet.Api.Controllers
                 return NotFound();
             }
             var tasks = table.Tasks;
-            if (tasks.Count==0)
+            if (tasks.Count == 0)
             {
                 return Json(new object[] { });
             }
 
-            var tasksDto = tasks.Select(_mapper.Map<TaskDto>).ToList();
+            var tasksDto = tasks.Skip(skip).Take(take).Select(_mapper.Map<TaskDto>).ToList();
             for (var i = 0; i < tasksDto.Count; i++)
             {
                 tasksDto[i].Note = user.Notes.FirstOrDefault(x => x.TaskId == tasksDto[i].Id)?.Text ?? "";
                 tasksDto[i].IsAuthor = tasksDto[i].Author.Id == user.Id;
                 tasksDto[i].IsExecutor = tasksDto[i].Executor.Id == user.Id;
             }
-            return Json(tasksDto);
+
+            var tasksHid = tasksDto.Where(x => !x.Hidden || (x.IsAuthor || x.IsExecutor));
+            return Json(tasksHid);
         }
 
         [SwaggerResponse(200, "", typeof(TaskDto))]
@@ -130,8 +151,11 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 await _taskHub.Clients.Users(tableUsers).NewTask(taskDto);
             }
-
-            if (task.Executor.PushToken != null)
+            if (task.Executor.IsMailNotify)
+            {
+                await ConfirmationEmail.SendNotification(task, task.Executor, true);
+            }
+            if (task.Executor.PushToken != null && task.Executor.IsPushOn)
             {
                 MulticastMessage message;
                 message = new MulticastMessage()
@@ -163,9 +187,10 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 return NotFound();
             }
-            var task = _context.XTasks.Include(x=>x.Table).Include(x=>x.Executor).FirstOrDefault(x=>x.Id==request.Id);
+            var task = _context.XTasks.Include(x => x.Table).Include(x => x.Executor).Include(x=>x.Author).FirstOrDefault(x => x.Id == request.Id);
             if (user.Tasks.Contains(task) || user.AuthoredTasks.Contains(task))
             {
+                var newst = false;
                 task.Title = request.Title ?? task.Title;
                 task.Description = request.Description ?? task.Description;
                 if (request.ExecutorId != null)
@@ -176,11 +201,28 @@ namespace SBEU.Tasklet.Api.Controllers
                     }
                     task.Executor = request.ExecutorId.Get<XIdentityUser>(_context);
                 }
-                task.Status = request.Status ?? TaskProgress.New;
+                if (request.Status is { } status)
+                {
+
+                    if(task.Status != status)
+                    {
+                        newst = true;
+                    }
+                    task.Status = status;
+                    if (status == TaskProgress.Done || status == TaskProgress.Closed)
+                    {
+                        task.EndTime = DateTime.Now;
+                    }
+                }
+
                 task.Links = request.Links ?? task.Links;
 
                 _context.Update(task);
                 await _context.SaveChangesAsync();
+                if (newst && (task.Author.Id == UserId ? task.Executor.IsMailNotify : task.Author.IsMailNotify))
+                {
+                    await ConfirmationEmail.SendNotification(task, task.Author.Id == UserId ? task.Executor : task.Author, false);
+                }
                 var taskDto = _mapper.Map<TaskDto>(task);
                 var tableUsers = _context.XTables.Include(x => x.Users).FirstOrDefault(x => x.Id == task.Table.Id)?.Users
                     .Select(x => x.Id) ?? Enumerable.Empty<string>();

@@ -35,21 +35,21 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = await _context.Users.Include(x => x.Chats).ThenInclude(x=>x.Users).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.Include(x => x.Chats).ThenInclude(x => x.Users).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound("User was not identify");
             }
             var chatsDto = user.Chats.Select(_mapper.Map<ChatDto>).ToList();
-            for (var i=0;i<chatsDto.Count;i++)
+            for (var i = 0; i < chatsDto.Count; i++)
             {
                 if (chatsDto[i].Private)
                 {
-                    chatsDto[i].Title = user.Chats!.First(x => x.Id == chatsDto[i].Id)!.Users!.First(x => x.Id != user.Id)!.UserName!;
+                    chatsDto[i].Title = user.Chats!.FirstOrDefault(x => x.Id == chatsDto[i].Id)?.Users?.FirstOrDefault(x => x.Id != user.Id)?.UserName??"_";
                 }
 
                 chatsDto[i].LastMessage = _context.Messages?.Where(x => x.Chat.Id == chatsDto[i].Id)?.OrderByDescending(x => x.Time)?
-                    .FirstOrDefault()?.Text??"There are no messages yet";
+                    .FirstOrDefault()?.Text ?? "There are no messages yet";
             }
             return Json(chatsDto);
         }
@@ -58,7 +58,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("{chatId}")]
         public async Task<IActionResult> GetById(string chatId)
         {
-            var user = await _context.Users.Include(x => x.Chats).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.Include(x => x.Chats).ThenInclude(x => x.Users).FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound("User was not identify");
@@ -72,7 +72,7 @@ namespace SBEU.Tasklet.Api.Controllers
             if (chatDto.Private)
             {
                 chatDto.Users = chatDto.Users.Where(x => x.Id != user.Id).ToList();
-                chatDto.Title = chatDto.Users.First(x => x.Id != user.Id).UserName;
+                chatDto.Title = chatDto.Users.FirstOrDefault(x => x.Id != user.Id)?.UserName ?? "Something goes wrong";
             }
             return Json(chatDto);
         }
@@ -90,12 +90,12 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 Id = Guid.NewGuid().ToString(),
                 Private = request.Private,
-                Title = request.Title
+                Title = request.Title??"_"
             };
             chat.Users.Add(user);
             if (request.Private)
             {
-                if (request.UserIds.Count > 1)
+                if (request.UserIds.Count > 1 || request.UserIds.FirstOrDefault()==user.Id)
                 {
                     return BadRequest();
                 }
@@ -119,6 +119,18 @@ namespace SBEU.Tasklet.Api.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+        [SwaggerResponse(200,"",typeof(MessageDto))]
+        [HttpGet("history/{chatId}")]
+        public async Task<IActionResult> GetHistory(string chatId, [FromQuery] int skip = 0, [FromQuery] int take = 40)
+        {
+            var history = _context.Messages.Include(x=>x.From).Include(x=>x.Chat).Where(x => x.Chat.Id == chatId).OrderByDescending(x => x.Time).Skip(skip).Take(take).ToList();
+            var historyDto = history.Select(_mapper.Map<MessageDto>).ToList();
+            for (int i = 0; i < historyDto.Count; i++)
+            {
+                historyDto[i].Self = historyDto[i].From.Id == UserId;
+            }
+            return Json(historyDto);
+        }
 
         [HttpPost("message")]
         public async Task<IActionResult> SendMessage([FromBody] MessageRequest request)
@@ -127,6 +139,11 @@ namespace SBEU.Tasklet.Api.Controllers
             if (user == null)
             {
                 return NotFound("User was not identify");
+            }
+
+            if (string.IsNullOrWhiteSpace(request.Text))
+            {
+                return NoContent();
             }
             var mess = _mapper.Map<XMessage>(request);
             mess.Chat = request.ChatId.Get<Chat>(_context);
@@ -141,11 +158,10 @@ namespace SBEU.Tasklet.Api.Controllers
             if (mess.Chat.Private && _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
                     .First(x => x.Id != user.Id).IsPushOn)
             {
-                await Send(
-                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
-                        .Select(x => x.PushToken).ToList(),
-                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
-                        .First(x => x.Id != user.Id).UserName, mess.Text);
+                await Send(new []{
+                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users.First(x => x.Id != user.Id)
+                        .PushToken }.ToList(),
+                    user.UserName, mess.Text);
             }
             else
             {

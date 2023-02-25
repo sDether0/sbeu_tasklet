@@ -16,13 +16,16 @@ namespace SBEU.Tasklet.Api.Models
             Console.WriteLine("table");
             CreateMap<TableDto, XTable>();
             CreateMap<XTable, TableDto>();
+            CreateMap<XTable, SmallTableDto>();
             CreateMap<CreateTableRequest, XTable>();
             Console.WriteLine("task");
             CreateMap<XTask, TaskDto>()
-                .ForMember(x=>x.Note,s=>s.Ignore());
+                .ForMember(x=>x.Note,s=>s.Ignore())
+                .ForMember(x=>x.Duration,s=>s.MapFrom(o=>o.Duration.TotalHours));
             CreateMap<CreateTaskRequest, XTask>()
                 .ForMember(x => x.Executor, s => s.MapFrom(o => new XIdentityUser(){Id = o.ExecutorId}))
                 .ForMember(x=>x.Table,s=>s.MapFrom(o=>new XTable(){Id = o.TableId}))
+                .ForMember(x=>x.Duration,s=>s.MapFrom(o=>TimeSpan.FromHours(o.Duration)))
                 .ForMember(x=>x.Notes,s=>s.Ignore());
             Console.WriteLine("chat");
             CreateMap<Chat, ChatDto>();

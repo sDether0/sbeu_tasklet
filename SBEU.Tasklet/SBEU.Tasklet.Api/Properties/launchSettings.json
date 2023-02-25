@@ -1,23 +1,21 @@
-﻿{
-  "$schema": "https://json.schemastore.org/launchsettings.json",
-  "iisSettings": {
-    "windowsAuthentication": false,
-    "anonymousAuthentication": true,
-    "iisExpress": {
-      "applicationUrl": "http://localhost:58326",
-      "sslPort": 44387
-    }
-  },
+{
   "profiles": {
     "SBEU.Tasklet.Api": {
       "commandName": "Project",
-      "dotnetRunMessages": true,
       "launchBrowser": true,
       "launchUrl": "swagger",
-      "applicationUrl": "https://localhost;http://localhost",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DATABASENAME": "SBEU.Gramm",
+        "DATABASEHOST": "125.125.116.116",
+        "DATABASEPORT": "5432",
+        "DATABASEPASSWORD": "1namQfeg1",
+        "DATABASEUSER": "postgres",
+        "SECRETJWT": "aoksjdjancjasjaq",
+        "EXPIRYTIMEFRAME": "10000.00:00:00"
+      },
+      "dotnetRunMessages": true,
+      "applicationUrl": "https://localhost;http://localhost"
     },
     "IIS Express": {
       "commandName": "IISExpress",
@@ -26,6 +24,32 @@
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
+    },
+    "Docker": {
+      "commandName": "Docker",
+      "launchBrowser": true,
+      "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
+      "publishAllPorts": true,
+      "useSSL": true,
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DATABASENAME": "SBEU.Gramm",
+        "DATABASEHOST": "125.125.116.116",
+        "DATABASEPORT": "5432",
+        "DATABASEPASSWORD": "1namQfeg1",
+        "DATABASEUSER": "postgres",
+        "SECRETJWT": "aoksjdjancjasjaq",
+        "EXPIRYTIMEFRAME": "10000.00:00:00"
+      }
+    }
+  },
+  "$schema": "https://json.schemastore.org/launchsettings.json",
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:58326",
+      "sslPort": 44387
     }
   }
 }

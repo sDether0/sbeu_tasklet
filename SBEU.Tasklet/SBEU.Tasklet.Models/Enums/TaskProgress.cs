@@ -11,6 +11,7 @@ namespace SBEU.Tasklet.Models.Enums
         New,
         Doing,
         Review,
-        Done
+        Done, 
+        Closed
     }
 }

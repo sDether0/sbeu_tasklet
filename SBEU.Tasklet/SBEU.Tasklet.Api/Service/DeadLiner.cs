@@ -24,8 +24,8 @@ namespace SBEU.Tasklet.Api.Service
                 using var context = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<ApiDbContext>();
                 await context.XTasks.LoadAsync();
                 var tasks = await context.XTasks.Include(x=>x.Executor).ToListAsync();
-                var dead2h = tasks.Where(task => (DateTime.Now - task.StartTime.AddDays((int)task.Duration)).Hours < 2);
-                var dead8h = tasks.Where(task => (DateTime.Now - task.StartTime.AddDays((int)task.Duration)).Hours < 8);
+                var dead2h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 2);
+                var dead8h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 8);
                 
                 MulticastMessage message;
                 message = new MulticastMessage()

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SBEU.Tasklet.DataLayer.DataBase;
@@ -12,9 +13,10 @@ using SBEU.Tasklet.DataLayer.DataBase;
 namespace SBEU.Tasklet.DataLayer.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221124195702_ren_duration")]
+    partial class ren_duration
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -269,9 +271,6 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean");
 
-                    b.Property<bool>("IsMailNotify")
-                        .HasColumnType("boolean");
-
                     b.Property<bool>("IsPushOn")
                         .HasColumnType("boolean");
 
@@ -416,9 +415,6 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
                     b.Property<TimeSpan>("Duration")
                         .HasColumnType("interval");
-
-                    b.Property<DateTime?>("EndTime")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("ExecutorId")
                         .IsRequired()

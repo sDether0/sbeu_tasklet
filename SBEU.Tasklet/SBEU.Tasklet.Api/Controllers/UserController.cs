@@ -50,6 +50,8 @@ namespace SBEU.Tasklet.Api.Controllers
                 {
                     UserName = request.UserName,
                     Email = request.Email,
+                    NormalizedEmail = request.Email.ToUpper(),
+                    NormalizedUserName = request.UserName.ToUpper()
                 };
                 await _userManager.CreateAsync(user);
             }
@@ -102,6 +104,21 @@ namespace SBEU.Tasklet.Api.Controllers
             await _context.SaveChangesAsync();
             return Ok();
         }
+
+        [HttpPost("mailnotifyswitch")]
+        public async Task<IActionResult> SwitchMail()
+        {
+            var user = await _context.Users.FindAsync(UserId);
+            if (user == null)
+            {
+                return NotFound("User was not found or identify");
+            }
+            user.IsMailNotify = !user.IsMailNotify;
+            _context.Update(user);
+            await _context.SaveChangesAsync();
+            return Ok(new { current = user.IsMailNotify });
+        }
+
 
         [HttpPost("switchPush/{bit}")]
         public async Task<IActionResult> SwitchPush(bool bit)

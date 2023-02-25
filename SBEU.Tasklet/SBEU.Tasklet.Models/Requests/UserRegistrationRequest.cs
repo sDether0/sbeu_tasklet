@@ -1,14 +1,15 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.CodeAnalysis;
 
 namespace SBEU.Tasklet.Models.Requests
 {
     public class UserRegistrationRequest
     {
-        [Required]
+        [Required, NotNull]
         public string Name { get; set; }
-        [Required]
+        [Required, NotNull]
         public string Email { get; set; }
-        [Required]
+        [Required, NotNull]
         public string Password { get; set; }
     }
 }

@@ -32,10 +32,20 @@ builder.Services.AddAutoMapper(cfg =>
     cfg.Internal().MethodMappingEnabled = false;
 });
 builder.Services.AddSignalR();
+var name = Environment.GetEnvironmentVariable("DATABASENAME");
+var user = Environment.GetEnvironmentVariable("DATABASEUSER");
+var password = Environment.GetEnvironmentVariable("DATABASEPASSWORD");
+var host = Environment.GetEnvironmentVariable("DATABASEHOST");
+var port = Environment.GetEnvironmentVariable("DATABASEPORT");
+var connectionString = $"User ID={user};Password={password};Host={host};Port={port};Database={name};";
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("JwtConfig"));
-var key = Encoding.ASCII.GetBytes(builder.Configuration["JwtConfig:Secret"]);
+    options.UseNpgsql(connectionString));
+builder.Services.Configure<JwtConfig>(config =>
+{
+    config.ExpiryTimeFrame = TimeSpan.Parse(Environment.GetEnvironmentVariable("EXPIRYTIMEFRAME"));
+    config.Secret = Environment.GetEnvironmentVariable("SECRETJWT");
+});
+var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("SECRETJWT"));
 var tokenValidationParameters = new TokenValidationParameters
 {
     ValidateIssuerSigningKey = true,
