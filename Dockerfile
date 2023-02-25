@@ -21,4 +21,5 @@ RUN dotnet publish "SBEU.Tasklet.Api.csproj" -c Release -o /app/publish /p:UseAp
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
+
 ENTRYPOINT ["dotnet", "SBEU.Tasklet.Api.dll"]
