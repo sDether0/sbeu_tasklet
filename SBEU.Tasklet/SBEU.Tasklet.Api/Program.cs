@@ -38,6 +38,7 @@ var password = Environment.GetEnvironmentVariable("DATABASEPASSWORD");
 var host = Environment.GetEnvironmentVariable("DATABASEHOST");
 var port = Environment.GetEnvironmentVariable("DATABASEPORT");
 var connectionString = $"User ID={user};Password={password};Host={host};Port={port};Database={name};";
+Console.WriteLine(connectionString);
 builder.Services.AddDbContext<ApiDbContext>(options =>
     options.UseNpgsql(connectionString));
 builder.Services.Configure<JwtConfig>(config =>
