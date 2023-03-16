@@ -71,6 +71,20 @@ builder.Services.AddAuthentication(options =>
 {
     jwt.SaveToken = true;
     jwt.TokenValidationParameters = tokenValidationParameters;
+    jwt.Events = new JwtBearerEvents()
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+
+            var path = context.HttpContext.Request.Path;
+            if(!string.IsNullOrEmpty(accessToken) && (path.StartsWithSegments("/taskhub") || path.StartsWithSegments("/chathub")))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
 });
 builder.Services.Configure<KestrelServerOptions>(options =>
 {
