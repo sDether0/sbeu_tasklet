@@ -17,6 +17,8 @@ using System.Security.Claims;
 using System.Text;
 using AutoMapper;
 using FirebaseAdmin.Messaging;
+using Microsoft.Extensions.Caching.Distributed;
+using SBEU.Tasklet.Api.Service.Interface;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
@@ -28,11 +30,13 @@ namespace SBEU.Tasklet.Api.Controllers
         private readonly ApiDbContext _context;
         private readonly JwtConfig _jwtConfig;
         private readonly IMapper _mapper;
-        public UserController(UserManager<XIdentityUser> userManager, ApiDbContext context, IOptionsMonitor<JwtConfig> optionsMonitor, IMapper mapper)
+        private readonly ICCache _cache;
+        public UserController(UserManager<XIdentityUser> userManager, ApiDbContext context, IOptionsMonitor<JwtConfig> optionsMonitor, IMapper mapper, ICCache cache)
         {
             _userManager = userManager;
             _context = context;
             _mapper = mapper;
+            _cache = cache;
             _jwtConfig = optionsMonitor.CurrentValue;
         }
 
@@ -58,6 +62,19 @@ namespace SBEU.Tasklet.Api.Controllers
 
             var hash = await user.SendConfirmationEmail(_context);
             return Json(new { Code = hash });
+        }
+
+        [SwaggerResponse(200, "", typeof(UserDto))]
+        [HttpGet("me")]
+        public async Task<IActionResult> GetMe()
+        {
+            var user = await _cache.GetUser(UserId,_context);
+            if (user == null)
+            {
+                return NotFound();
+            }
+            var dto = _mapper.Map<UserDto>(user);
+            return Ok(dto);
         }
 
         [SwaggerResponse(200,"",typeof(IEnumerable<UserDto>))]

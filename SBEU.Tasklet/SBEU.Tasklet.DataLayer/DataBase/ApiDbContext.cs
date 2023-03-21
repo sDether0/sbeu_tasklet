@@ -11,7 +11,7 @@ namespace SBEU.Tasklet.DataLayer.DataBase
     public class ApiDbContext : IdentityDbContext<XIdentityUser>
     {
         public ApiDbContext(DbContextOptions<ApiDbContext> options) : base(options) {
-            Database.Migrate();
+            //Database.Migrate();
         }
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
         public virtual DbSet<XIdentityUserConfirm> UserConfirmations { get; set; }

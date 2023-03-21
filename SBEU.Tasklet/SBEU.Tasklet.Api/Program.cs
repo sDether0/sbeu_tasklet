@@ -12,8 +12,10 @@ using AutoMapper.Internal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using SBEU.Tasklet.Api.Hubs;
+using SBEU.Tasklet.Api.Service.Interface;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
+using StackExchange.Redis;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,6 +48,12 @@ builder.Services.Configure<JwtConfig>(config =>
     config.ExpiryTimeFrame = TimeSpan.Parse(Environment.GetEnvironmentVariable("EXPIRYTIMEFRAME"));
     config.Secret = Environment.GetEnvironmentVariable("SECRETJWT");
 });
+
+var tempbuilder = new DbContextOptionsBuilder<ApiDbContext>();
+tempbuilder.UseNpgsql(connectionString);
+var tempdb = new ApiDbContext(tempbuilder.Options);
+await tempdb.Database.MigrateAsync();
+
 var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("SECRETJWT"));
 var tokenValidationParameters = new TokenValidationParameters
 {
@@ -132,6 +140,14 @@ builder.Services.AddCors(options =>
 builder.Services.AddDefaultIdentity<XIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApiDbContext>();
 builder.Services.AddSingleton<DeadLiner>();
+var chost = Environment.GetEnvironmentVariable("CACHEHOST");
+var cport = Environment.GetEnvironmentVariable("CACHEPORT");
+
+builder.Services.AddStackExchangeRedisCache(op =>
+{
+    op.ConfigurationOptions = ConfigurationOptions.Parse(chost+":"+cport);
+});
+builder.Services.AddScoped<ICCache, CustomCache>();
 var app = builder.Build();
 
 //app.Urls.Add("https://0.0.0.0:54543");

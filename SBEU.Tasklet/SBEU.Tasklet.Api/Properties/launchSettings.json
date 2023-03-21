@@ -6,11 +6,13 @@
       "launchUrl": "swagger",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DATABASENAME": "SBEU.Gramm",
-        "DATABASEHOST": "125.125.116.116",
+        "DATABASENAME": "SBEU.Task",
+        "DATABASEHOST": "localhost",
         "DATABASEPORT": "5432",
         "DATABASEPASSWORD": "1namQfeg1",
         "DATABASEUSER": "postgres",
+        "CACHEHOST": "125.125.116.116",
+        "CACHEPORT": "19937",
         "SECRETJWT": "aoksjdjancjasjaq",
         "EXPIRYTIMEFRAME": "10000.00:00:00"
       },
@@ -33,11 +35,13 @@
       "useSSL": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DATABASENAME": "SBEU.Gramm",
-        "DATABASEHOST": "125.125.116.116",
+        "DATABASENAME": "SBEU.Task",
+        "DATABASEHOST": "localhost",
         "DATABASEPORT": "5432",
         "DATABASEPASSWORD": "1namQfeg1",
         "DATABASEUSER": "postgres",
+        "CACHEHOST": "125.125.116.116",
+        "CACHEPORT": "19937",
         "SECRETJWT": "aoksjdjancjasjaq",
         "EXPIRYTIMEFRAME": "10000.00:00:00"
       }
