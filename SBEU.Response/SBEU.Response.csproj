@@ -6,8 +6,4 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\SBEU.Tasklet\SBEU.Tasklet.DataLayer\SBEU.Tasklet.DataLayer.csproj" />
-  </ItemGroup>
-
 </Project>

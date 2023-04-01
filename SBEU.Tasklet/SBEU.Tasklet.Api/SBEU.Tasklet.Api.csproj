@@ -43,7 +43,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\SBEU.Response\SBEU.Response.csproj" />
+    <ProjectReference Include="..\..\SBEU.Exception\SBEU.Exceptions.csproj" />
+    <ProjectReference Include="..\..\SBEU.Response\SBEU.Response.csproj" />
     <ProjectReference Include="..\SBEU.Tasklet.DataLayer\SBEU.Tasklet.DataLayer.csproj" />
     <ProjectReference Include="..\SBEU.Tasklet.Models\SBEU.Tasklet.Models.csproj" />
   </ItemGroup>
