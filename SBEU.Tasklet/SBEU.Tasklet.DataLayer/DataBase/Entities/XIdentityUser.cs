@@ -1,20 +1,20 @@
 ﻿
 using Microsoft.AspNetCore.Identity;
-
+using SBEU.Tasklet.DataLayer.DataBase.Entities.Interfaces;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SBEU.Tasklet.DataLayer.DataBase.Entities
 {
-    public class XIdentityUser : IdentityUser, IEntity
+    public class XIdentityUser : IdentityUser, IIdEntity
     {
         public XIdentityUser()
         {
-            Chats??= new HashSet<Chat>();
-            Confirmations ??= new HashSet<XIdentityUserConfirm>();
-            Notes ??= new HashSet<Note>();
-            Tasks ??= new HashSet<XTask>();
-            Tables ??= new HashSet<XTable>();
-            AuthoredTasks ??= new HashSet<XTask>();
+            //Chats??= new HashSet<Chat>();
+            //Confirmations ??= new HashSet<XIdentityUserConfirm>();
+            //Notes ??= new HashSet<Note>();
+            //Tasks ??= new HashSet<XTask>();
+            //Tables ??= new HashSet<XTable>();
+            //AuthoredTasks ??= new HashSet<XTask>();
         }
 
         public string? PushToken { get; set; }

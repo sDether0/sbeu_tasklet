@@ -8,14 +8,20 @@ using SBEU.Tasklet.Api.Models;
 using SBEU.Tasklet.Api.Service;
 
 using System.Text;
+using AutoMapper;
 using AutoMapper.Internal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using SBEU.Tasklet.Api.Hubs;
+using SBEU.Tasklet.Api.Middleware;
+using SBEU.Tasklet.Api.Repositories;
+using SBEU.Tasklet.Api.Repositories.Interfaces;
 using SBEU.Tasklet.Api.Service.Interface;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
 using StackExchange.Redis;
+using Serilog;
+using Serilog.Events;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -42,7 +48,7 @@ var port = Environment.GetEnvironmentVariable("DATABASEPORT");
 var connectionString = $"User ID={user};Password={password};Host={host};Port={port};Database={name};";
 Console.WriteLine(connectionString);
 builder.Services.AddDbContext<ApiDbContext>(options =>
-    options.UseNpgsql(connectionString));
+    options.UseLazyLoadingProxies().UseNpgsql(connectionString));
 builder.Services.Configure<JwtConfig>(config =>
 {
     config.ExpiryTimeFrame = TimeSpan.Parse(Environment.GetEnvironmentVariable("EXPIRYTIMEFRAME"));
@@ -148,6 +154,17 @@ builder.Services.AddStackExchangeRedisCache(op =>
     op.ConfigurationOptions = ConfigurationOptions.Parse(chost+":"+cport);
 });
 builder.Services.AddScoped<ICCache, CustomCache>();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<ITableRepository, TableRepository>();
+builder.Services.AddScoped<IMessageRepository, MessageRepository>();
+builder.Services.AddSingleton<CatchMiddlware>();
+Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
+    .WriteTo.File("logs/debug.log", LogEventLevel.Debug, rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/error.log", LogEventLevel.Error, rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/fatal.log", LogEventLevel.Fatal, rollingInterval: RollingInterval.Day)
+    .WriteTo.File("logs/information.log", LogEventLevel.Information, rollingInterval: RollingInterval.Day)
+    .WriteTo.Console(LogEventLevel.Information | LogEventLevel.Error | LogEventLevel.Fatal)
+    .CreateLogger();
 var app = builder.Build();
 
 //app.Urls.Add("https://0.0.0.0:54543");
@@ -165,6 +182,7 @@ app.UseAuthentication();
 app.MapControllers();
 app.MapHub<ChatHub>("/chathub");
 app.MapHub<TaskHub>("/taskhub");
+Notifier.SetMapper(app.Services.GetRequiredService<IMapper>());
 var d= app.Services.GetRequiredService<DeadLiner>();
 d.Start();
 app.Run();

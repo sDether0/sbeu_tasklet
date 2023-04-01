@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SBEU.Tasklet.DataLayer.DataBase.Entities.Interfaces;
 
 namespace SBEU.Tasklet.DataLayer.DataBase.Entities
 {
@@ -19,6 +20,6 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         public DateTime ExpiryDate { get; set; }
 
         [ForeignKey(nameof(UserId))]
-        public XIdentityUser User { get; set; }
+        public virtual XIdentityUser User { get; set; }
     }
 }

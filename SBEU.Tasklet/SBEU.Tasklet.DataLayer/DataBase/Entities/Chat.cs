@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SBEU.Tasklet.DataLayer.DataBase.Entities.Interfaces;
 
 namespace SBEU.Tasklet.DataLayer.DataBase.Entities
 {
-    public class Chat : IEntity
+    public class Chat : DeletableEntity
     {
         public Chat()
         {
-            Users ??= new HashSet<XIdentityUser>();
+            //Users ??= new HashSet<XIdentityUser>();
         }
 
         public string Id { get; set; }

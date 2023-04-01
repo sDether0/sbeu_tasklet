@@ -20,6 +20,8 @@ namespace SBEU.Tasklet.DataLayer.DataBase
 
         public virtual DbSet<Chat> Chats { get; set; }
         public virtual DbSet<XMessage> Messages { get; set; }
+        public virtual DbSet<XContent> Contents { get; set; }
+        public virtual DbSet<XHistory> History { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -27,10 +29,14 @@ namespace SBEU.Tasklet.DataLayer.DataBase
             builder.Entity<XIdentityUser>().HasMany(x => x.AuthoredTasks).WithOne(x => x.Author);
             builder.Entity<Note>().HasKey(x => new { x.UserId, x.TaskId });
             builder.Entity<Note>().HasIndex(x=>x.UserId);
+            builder.Entity<XHistory>().Property(x=>x.Id).ValueGeneratedOnAdd();
+            builder.Entity<XTask>().HasMany(x => x.Contents).WithMany();
+            builder.Entity<XHistory>().HasMany(x => x.Contents).WithMany();
             builder.Entity<XIdentityUser>().HasMany(x=>x.Notes).WithOne().HasForeignKey(x=>x.UserId);
             builder.Entity<XTask>().HasMany(x => x.Notes).WithOne().HasForeignKey(x => x.TaskId);
             builder.Entity<XTask>().Property(x => x.StartTime).HasConversion(to=>to.ToUniversalTime(),from=>from.ToUniversalTime());
             builder.Entity<XMessage>().Property(x => x.Time).HasConversion(to => to.ToUniversalTime(), from => from.ToUniversalTime());
+            builder.Entity<XHistory>().Property(x => x.UpdateDate).HasConversion(to => to.ToUniversalTime(), from => from.ToUniversalTime());
             base.OnModelCreating(builder);
         }
         

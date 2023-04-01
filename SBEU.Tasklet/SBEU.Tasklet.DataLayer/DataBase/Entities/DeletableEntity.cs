@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SBEU.Tasklet.DataLayer.DataBase.Entities.Interfaces;
 
 namespace SBEU.Tasklet.DataLayer.DataBase.Entities
 {
-    public class Note : DeletableEntity
+    public class DeletableEntity : XEntity, IDeletable
     {
-        public string TaskId { get; set; }
-        public string UserId { get; set; }
-        public string Text { get; set; }
+        public bool IsDeleted { get; set; }
     }
 }

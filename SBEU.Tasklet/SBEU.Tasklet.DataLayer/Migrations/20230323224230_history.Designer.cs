@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using SBEU.Tasklet.DataLayer.DataBase;
@@ -12,9 +13,11 @@ using SBEU.Tasklet.DataLayer.DataBase;
 namespace SBEU.Tasklet.DataLayer.Migrations
 {
     [DbContext(typeof(ApiDbContext))]
-    partial class ApiDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230323224230_history")]
+    partial class history
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -277,24 +280,35 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<decimal?>("XHistoryId")
+                        .HasColumnType("numeric(20,0)");
+
+                    b.Property<string>("XTaskId")
+                        .HasColumnType("text");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("XHistoryId");
+
+                    b.HasIndex("XTaskId");
 
                     b.ToTable("Contents");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XHistory", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<decimal>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+                        .HasColumnType("numeric(20,0)");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<string>("ExecutorId")
                         .HasColumnType("text");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<int?>("Status")
                         .HasColumnType("integer");
@@ -543,36 +557,6 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                     b.ToTable("XTasks");
                 });
 
-            modelBuilder.Entity("XContentXHistory", b =>
-                {
-                    b.Property<string>("ContentsId")
-                        .HasColumnType("text");
-
-                    b.Property<long>("XHistoryId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("ContentsId", "XHistoryId");
-
-                    b.HasIndex("XHistoryId");
-
-                    b.ToTable("XContentXHistory");
-                });
-
-            modelBuilder.Entity("XContentXTask", b =>
-                {
-                    b.Property<string>("ContentsId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("XTaskId")
-                        .HasColumnType("text");
-
-                    b.HasKey("ContentsId", "XTaskId");
-
-                    b.HasIndex("XTaskId");
-
-                    b.ToTable("XContentXTask");
-                });
-
             modelBuilder.Entity("XIdentityUserXTable", b =>
                 {
                     b.Property<string>("TablesId")
@@ -680,6 +664,17 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XContent", b =>
+                {
+                    b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XHistory", null)
+                        .WithMany("Contents")
+                        .HasForeignKey("XHistoryId");
+
+                    b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XTask", null)
+                        .WithMany("Contents")
+                        .HasForeignKey("XTaskId");
+                });
+
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XHistory", b =>
                 {
                     b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XIdentityUser", "Executor")
@@ -772,36 +767,6 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                     b.Navigation("Table");
                 });
 
-            modelBuilder.Entity("XContentXHistory", b =>
-                {
-                    b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XContent", null)
-                        .WithMany()
-                        .HasForeignKey("ContentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XHistory", null)
-                        .WithMany()
-                        .HasForeignKey("XHistoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("XContentXTask", b =>
-                {
-                    b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XContent", null)
-                        .WithMany()
-                        .HasForeignKey("ContentsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XTask", null)
-                        .WithMany()
-                        .HasForeignKey("XTaskId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("XIdentityUserXTable", b =>
                 {
                     b.HasOne("SBEU.Tasklet.DataLayer.DataBase.Entities.XTable", null)
@@ -815,6 +780,11 @@ namespace SBEU.Tasklet.DataLayer.Migrations
                         .HasForeignKey("UsersId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XHistory", b =>
+                {
+                    b.Navigation("Contents");
                 });
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XIdentityUser", b =>
@@ -835,6 +805,8 @@ namespace SBEU.Tasklet.DataLayer.Migrations
 
             modelBuilder.Entity("SBEU.Tasklet.DataLayer.DataBase.Entities.XTask", b =>
                 {
+                    b.Navigation("Contents");
+
                     b.Navigation("History");
 
                     b.Navigation("Notes");

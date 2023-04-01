@@ -17,7 +17,7 @@
         "EXPIRYTIMEFRAME": "10000.00:00:00"
       },
       "dotnetRunMessages": true,
-      "applicationUrl": "https://localhost;http://localhost"
+      "applicationUrl": "http://localhost:54542"
     },
     "IIS Express": {
       "commandName": "IISExpress",
