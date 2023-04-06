@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 using SBEU.Tasklet.Api.Hubs;
+using SBEU.Tasklet.Api.Repositories.Interfaces;
 using SBEU.Tasklet.Api.Service;
 using SBEU.Tasklet.DataLayer.DataBase;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
@@ -21,14 +22,16 @@ namespace SBEU.Tasklet.Api.Controllers
     public class ChatController : ControllerExt
     {
         private readonly ApiDbContext _context;
+        private readonly IMessageRepository _message;
         private readonly IMapper _mapper;
         private readonly IHubContext<ChatHub, IChat> _chatHub;
 
-        public ChatController(ApiDbContext context, IMapper mapper, IHubContext<ChatHub, IChat> chatHub)
+        public ChatController(ApiDbContext context, IMapper mapper, IHubContext<ChatHub, IChat> chatHub, IMessageRepository message)
         {
             _context = context;
             _mapper = mapper;
             _chatHub = chatHub;
+            _message = message;
         }
 
         [SwaggerResponse(200, "", typeof(IEnumerable<ChatDto>))]
@@ -146,54 +149,30 @@ namespace SBEU.Tasklet.Api.Controllers
                 return NoContent();
             }
             var mess = _mapper.Map<XMessage>(request);
-            mess.Chat = request.ChatId.Get<Chat>(_context);
-            mess.From = user;
-            mess.Table = request.TableId?.Get<XTable>(_context);
-            mess.Task = request.TaskId?.Get<XTask>(_context);
-            mess.Time = DateTime.Now;
-            await _context.Messages.AddAsync(mess);
-            await _context.SaveChangesAsync();
-            var messDto = _mapper.Map<MessageDto>(mess);
-
-            if (mess.Chat.Private && _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users
-                    .First(x => x.Id != user.Id).IsPushOn)
-            {
-                await Send(new []{
-                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users.First(x => x.Id != user.Id)
-                        .PushToken }.ToList(),
-                    user.UserName, mess.Text);
-            }
-            else
-            {
-                await Send(
-                    _context.Chats.Include(x => x.Users).First(x => x.Id == mess.Chat.Id).Users.Where(x => x.IsPushOn)
-                        .Select(x => x.PushToken).ToList(), mess.Chat.Title, mess.Text);
-            }
-
-
-            await _chatHub.Clients.Group(mess.Chat.Id).Message(messDto);
+            await _message.CreateAsync(mess, user);
+            
             return Ok();
         }
 
-
-        private async Task Send(List<string> tokens, string chat, string text)
+        [HttpDelete("message/{id}")]
+        public async Task<IActionResult> DeleteMessage(string id)
         {
-            MulticastMessage message;
-            message = new MulticastMessage()
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
+            if (user == null)
             {
-                Tokens = tokens,
-                Data = new Dictionary<string, string>()
-                {
-                    {"title", chat},
-                    {"body", text},
-                },
-                Notification = new Notification()
-                {
-                    Title = chat,
-                    Body = text
-                }
-            };
-            await FirebaseMessaging.DefaultInstance.SendMulticastAsync(message);
+                return Unauthorized();
+            }
+
+            var mess = await _context.Messages.FirstOrDefaultAsync(x => x.From.Id == id);
+            if (mess == null)
+            {
+                return NotFound();
+            }
+
+            await _message.DeleteAsync(id);
+            return Ok();
         }
+
+        
     }
 }

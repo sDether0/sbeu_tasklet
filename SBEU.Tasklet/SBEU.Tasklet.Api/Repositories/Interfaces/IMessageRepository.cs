@@ -9,5 +9,6 @@ namespace SBEU.Tasklet.Api.Repositories.Interfaces
 {
     public interface IMessageRepository : IRepository<XMessage>
     {
+        Task<XMessage> CreateAsync(XMessage mess, XIdentityUser user);
     }
 }
