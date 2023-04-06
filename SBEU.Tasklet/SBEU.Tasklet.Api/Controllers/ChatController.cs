@@ -19,6 +19,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     public class ChatController : ControllerExt
     {
@@ -60,7 +61,7 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(IEnumerable<FullChatDto>))]
         [HttpGet("{chatId}")]
-        public async Task<IActionResult> GetById([StringLength(36)]string chatId)
+        public async Task<IActionResult> GetById([StringLength(36, MinimumLength = 36)]string chatId)
         {
             if (!ModelState.IsValid)
             {
@@ -133,7 +134,7 @@ namespace SBEU.Tasklet.Api.Controllers
         }
         [SwaggerResponse(200,"",typeof(MessageDto))]
         [HttpGet("history/{chatId}")]
-        public async Task<IActionResult> GetHistory([StringLength(36)] string chatId, [FromQuery] int skip = 0, [FromQuery] int take = 40)
+        public async Task<IActionResult> GetHistory([StringLength(36, MinimumLength = 36)] string chatId, [FromQuery] int skip = 0, [FromQuery] int take = 40)
         {
             if (!ModelState.IsValid)
             {
@@ -172,7 +173,7 @@ namespace SBEU.Tasklet.Api.Controllers
         }
 
         [HttpDelete("message/{id}")]
-        public async Task<IActionResult> DeleteMessage([StringLength(36)] string id)
+        public async Task<IActionResult> DeleteMessage([StringLength(36, MinimumLength = 36)] string id)
         {
             if (!ModelState.IsValid)
             {

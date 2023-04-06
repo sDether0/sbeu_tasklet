@@ -23,6 +23,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     public class UserController : ControllerExt
     {

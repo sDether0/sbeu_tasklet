@@ -8,6 +8,7 @@ using SBEU.Tasklet.Models.Requests;
 
 namespace SBEU.Tasklet.Api.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     public class MediaController : ControllerExt
     {

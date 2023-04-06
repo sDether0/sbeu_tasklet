@@ -65,7 +65,7 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(TaskDto))]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById([StringLength(36)]string id)
+        public async Task<IActionResult> GetById([StringLength(36,MinimumLength = 36)]string id)
         {
             if (!ModelState.IsValid)
             {
@@ -88,7 +88,7 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(IEnumerable<TaskDto>))]
         [HttpGet("table/{tableId}")]
-        public async Task<IActionResult> GetByTable([StringLength(36)] string tableId, [FromQuery] int skip = 0, [FromQuery] int take = 30)
+        public async Task<IActionResult> GetByTable([StringLength(36, MinimumLength = 36)] string tableId, [FromQuery] int skip = 0, [FromQuery] int take = 30)
         {
             if (!ModelState.IsValid)
             {
