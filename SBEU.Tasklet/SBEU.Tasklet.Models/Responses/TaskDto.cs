@@ -40,6 +40,7 @@ namespace SBEU.Tasklet.Models.Responses
         public bool IsExecutor { get; set; }
         [NotNull]
         public uint Price { get; set; }
+        public List<ContentDto> Contents { get; set; }
         public List<HistoryDto> History { get; set; }
     }
 }

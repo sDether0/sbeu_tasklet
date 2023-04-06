@@ -9,7 +9,6 @@ FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build
 WORKDIR /src
 COPY ["SBEU.Tasklet/SBEU.Tasklet.Api/SBEU.Tasklet.Api.csproj", "SBEU.Tasklet/SBEU.Tasklet.Api/"]
 COPY ["SBEU.Exception/SBEU.Exceptions.csproj", "SBEU.Exception/"]
-COPY ["SBEU.Response/SBEU.Response.csproj", "SBEU.Response/"]
 COPY ["SBEU.Tasklet/SBEU.Tasklet.DataLayer/SBEU.Tasklet.DataLayer.csproj", "SBEU.Tasklet/SBEU.Tasklet.DataLayer/"]
 COPY ["SBEU.Tasklet/SBEU.Tasklet.Models/SBEU.Tasklet.Models.csproj", "SBEU.Tasklet/SBEU.Tasklet.Models/"]
 RUN dotnet restore "SBEU.Tasklet/SBEU.Tasklet.Api/SBEU.Tasklet.Api.csproj"

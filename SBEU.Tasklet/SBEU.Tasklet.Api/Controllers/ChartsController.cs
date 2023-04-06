@@ -28,7 +28,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("userstotal")]
         public async Task<IActionResult> GetUsersTotal()
         {
-            var allTasks = _context.XTasks.Include(x => x.Author).Include(x => x.Executor).ToList();
+            var allTasks = _context.XTasks.ToList();
             var users = _context.Users.Select(_mapper.Map<UserDto>);
 
             var chart = new TotalChartDto

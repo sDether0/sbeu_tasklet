@@ -45,6 +45,7 @@ namespace SBEU.Tasklet.Api.Models
                 .ForMember(x => x.Table, s => s.Ignore());
             Console.WriteLine("chat");
             CreateMap<Chat, ChatDto>();
+            CreateMap<IQueryable<XTask>, List<TaskDto>>();
             CreateMap<Chat, FullChatDto>();
             Console.WriteLine("message");
             CreateMap<MessageRequest, XMessage>()

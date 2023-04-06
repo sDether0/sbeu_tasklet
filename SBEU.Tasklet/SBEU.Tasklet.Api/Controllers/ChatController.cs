@@ -35,7 +35,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var user = await _context.Users.Include(x => x.Chats).ThenInclude(x => x.Users).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound("User was not identify");
@@ -58,7 +58,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("{chatId}")]
         public async Task<IActionResult> GetById(string chatId)
         {
-            var user = await _context.Users.Include(x => x.Chats).ThenInclude(x => x.Users).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound("User was not identify");
@@ -123,7 +123,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("history/{chatId}")]
         public async Task<IActionResult> GetHistory(string chatId, [FromQuery] int skip = 0, [FromQuery] int take = 40)
         {
-            var history = _context.Messages.Include(x=>x.From).Include(x=>x.Chat).Where(x => x.Chat.Id == chatId).OrderByDescending(x => x.Time).Skip(skip).Take(take).ToList();
+            var history = _context.Messages.Where(x => x.Chat.Id == chatId).OrderByDescending(x => x.Time).Skip(skip).Take(take).ToList();
             var historyDto = history.Select(_mapper.Map<MessageDto>).ToList();
             for (int i = 0; i < historyDto.Count; i++)
             {

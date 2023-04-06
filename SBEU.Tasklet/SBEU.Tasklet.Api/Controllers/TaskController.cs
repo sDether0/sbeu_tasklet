@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using SBEU.Response;
 using SBEU.Tasklet.Api.Hubs;
-using SBEU.Tasklet.Api.Middleware;
 using SBEU.Tasklet.Api.Repositories.Interfaces;
 using SBEU.Tasklet.Api.Service;
 using SBEU.Tasklet.DataLayer.DataBase;
@@ -27,15 +26,13 @@ namespace SBEU.Tasklet.Api.Controllers
         private readonly ITaskRepository _tasks;
         private readonly IMapper _mapper;
         private readonly IHubContext<TaskHub, IXTask> _taskHub;
-        private readonly CatchMiddlware _catch;
 
-        public TaskController(ApiDbContext context, IMapper mapper, IHubContext<TaskHub, IXTask> taskHub, ITaskRepository tasks, CatchMiddlware @catch)
+        public TaskController(ApiDbContext context, IMapper mapper, IHubContext<TaskHub, IXTask> taskHub, ITaskRepository tasks)
         {
             _context = context;
             _mapper = mapper;
             _taskHub = taskHub;
             _tasks = tasks;
-            _catch = @catch;
         }
 
         [SwaggerResponse(200, "", typeof(IEnumerable<TaskDto>))]
@@ -65,7 +62,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetById(string id)
         {
-            var user = await _context.Users.Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
@@ -84,10 +81,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("table/{tableId}")]
         public async Task<IActionResult> GetByTable(string tableId, [FromQuery] int skip = 0, [FromQuery] int take = 30)
         {
-            var user = await _context.Users
-                .Include(x => x.Tables).ThenInclude(x => x.Tasks).ThenInclude(x => x.Executor)
-                .Include(x => x.Tables).ThenInclude(x => x.Tasks).ThenInclude(x => x.Author)
-                .Include(x => x.Notes).FirstOrDefaultAsync(x => x.Id == UserId);
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
                 return NotFound();
@@ -146,17 +140,6 @@ namespace SBEU.Tasklet.Api.Controllers
             var result = await _tasks.UpdateAsync(xTask, user);
             var taskDto = _mapper.Map<TaskDto>(result);
             return Json(taskDto);
-        }
-
-        [SwaggerResponse(200, "", typeof(BaseResponse<TaskDto>))]
-        [HttpPatch("baser")]
-        public async Task<BaseResponse<TaskDto>> UpdateB([FromBody] UpdateTaskRequest request)
-        {
-            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
-            var xTask =  _mapper.Map<XTask>(request);
-            var task = _tasks.UpdateAsync(xTask,user);
-            var taskResult = await _catch.Try<XTask,TaskDto>(task, user);
-            return taskResult;
         }
 
         [HttpPost("note")]

@@ -13,7 +13,6 @@ using AutoMapper.Internal;
 using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 using SBEU.Tasklet.Api.Hubs;
-using SBEU.Tasklet.Api.Middleware;
 using SBEU.Tasklet.Api.Repositories;
 using SBEU.Tasklet.Api.Repositories.Interfaces;
 using SBEU.Tasklet.Api.Service.Interface;
@@ -157,7 +156,6 @@ builder.Services.AddScoped<ICCache, CustomCache>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITableRepository, TableRepository>();
 builder.Services.AddScoped<IMessageRepository, MessageRepository>();
-builder.Services.AddSingleton<CatchMiddlware>();
 Log.Logger = new LoggerConfiguration().MinimumLevel.Debug()
     .WriteTo.File("logs/debug.log", LogEventLevel.Debug, rollingInterval: RollingInterval.Day)
     .WriteTo.File("logs/error.log", LogEventLevel.Error, rollingInterval: RollingInterval.Day)
