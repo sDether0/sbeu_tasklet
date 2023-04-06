@@ -10,9 +10,9 @@ namespace SBEU.Tasklet.Models.Requests
 {
     public class AddUserToTableRequest
     {
-        [Required, NotNull]
+        [Required, NotNull, StringLength(36)]
         public string UserId { get; set; }
-        [Required, NotNull]
+        [Required, NotNull, StringLength(36)]
         public string TableId { get; set; }
     }
 }

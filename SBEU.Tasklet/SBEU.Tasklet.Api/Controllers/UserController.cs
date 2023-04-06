@@ -43,6 +43,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("auth")]
         public async Task<IActionResult> AuthByMail([FromBody] EmailAuthRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
@@ -89,6 +93,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("confirm")]
         public async Task<IActionResult> ConfirmAuth([FromBody] ConfirmEmailAuthRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var confirmation = _context.UserConfirmations.Include(x => x.User)
                 .FirstOrDefault(x => x.HashCode == request.Code);
             if (confirmation == null)
@@ -110,6 +118,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("hookPush")]
         public async Task<IActionResult> PushHook([FromBody]PushHookRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FindAsync(UserId);
             if (user == null)
             {

@@ -12,7 +12,7 @@ namespace SBEU.Tasklet.Models.Requests
 {
     public class UpdateTableRequest
     {
-        [Required, NotNull]
+        [Required, NotNull, StringLength(36)]
         public string Id { get; set; }
         public string? Title { get; set; }
         public virtual List<UserDto>? Users { get; set; }

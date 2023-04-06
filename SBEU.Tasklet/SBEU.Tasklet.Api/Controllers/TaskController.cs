@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 
 using FirebaseAdmin.Messaging;
 
@@ -18,6 +19,7 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace SBEU.Tasklet.Api.Controllers
 {
+    [ApiController]
     [Route("[controller]")]
     public class TaskController : ControllerExt
     {
@@ -38,6 +40,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] int skip = 0, [FromQuery] int take = 30)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -59,8 +65,12 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(TaskDto))]
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(string id)
+        public async Task<IActionResult> GetById([StringLength(36)]string id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -78,8 +88,12 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(IEnumerable<TaskDto>))]
         [HttpGet("table/{tableId}")]
-        public async Task<IActionResult> GetByTable(string tableId, [FromQuery] int skip = 0, [FromQuery] int take = 30)
+        public async Task<IActionResult> GetByTable([StringLength(36)] string tableId, [FromQuery] int skip = 0, [FromQuery] int take = 30)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -112,6 +126,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTaskRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -129,6 +147,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPatch]
         public async Task<IActionResult> Update([FromBody] UpdateTaskRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -144,6 +166,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("note")]
         public async Task<IActionResult> AddNote([FromBody] NoteRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FindAsync(UserId);
             var task = await _context.XTasks.FindAsync(request.TaskId);
             if (task == null || user == null)

@@ -12,7 +12,7 @@ namespace SBEU.Tasklet.Models.Requests
 {
     public class UpdateTaskRequest
     {
-        [Required, NotNull]
+        [Required, NotNull, StringLength(36)]
         public string Id { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
@@ -20,6 +20,7 @@ namespace SBEU.Tasklet.Models.Requests
         public List<string>? Contents { get; set; }
         public uint? Duration { get; set; }
         public string? Status { get; set; }
+        [StringLength(36)]
         public string? ExecutorId { get; set; }
     }
 }

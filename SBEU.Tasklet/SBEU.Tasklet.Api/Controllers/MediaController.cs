@@ -22,6 +22,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("upload")]
         public async Task<IActionResult> Upload(IFormFile file, [FromQuery] XContentType content)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             if (!Directory.Exists("Content")) Directory.CreateDirectory("Content");
             var id = Guid.NewGuid()+Guid.NewGuid().ToString();
             using var stream = System.IO.File.Create("Content/" + id);

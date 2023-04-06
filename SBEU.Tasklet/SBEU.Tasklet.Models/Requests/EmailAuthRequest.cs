@@ -11,7 +11,7 @@ namespace SBEU.Tasklet.Models.Requests
     public class EmailAuthRequest
     {
         public string? UserName { get; set; }
-        [Required,NotNull]
+        [Required,NotNull,EmailAddress]
         public string Email { get; set; }
     }
 }

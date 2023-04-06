@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.ComponentModel.DataAnnotations;
+using AutoMapper;
 
 using FirebaseAdmin.Messaging;
 
@@ -59,8 +60,12 @@ namespace SBEU.Tasklet.Api.Controllers
 
         [SwaggerResponse(200, "", typeof(IEnumerable<FullChatDto>))]
         [HttpGet("{chatId}")]
-        public async Task<IActionResult> GetById(string chatId)
+        public async Task<IActionResult> GetById([StringLength(36)]string chatId)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
@@ -83,6 +88,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateChat([FromBody] CreateChatRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FindAsync(UserId);
             if (user == null)
             {
@@ -124,8 +133,12 @@ namespace SBEU.Tasklet.Api.Controllers
         }
         [SwaggerResponse(200,"",typeof(MessageDto))]
         [HttpGet("history/{chatId}")]
-        public async Task<IActionResult> GetHistory(string chatId, [FromQuery] int skip = 0, [FromQuery] int take = 40)
+        public async Task<IActionResult> GetHistory([StringLength(36)] string chatId, [FromQuery] int skip = 0, [FromQuery] int take = 40)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var history = _context.Messages.Where(x => x.Chat.Id == chatId).OrderByDescending(x => x.Time).Skip(skip).Take(take).ToList();
             var historyDto = history.Select(_mapper.Map<MessageDto>).ToList();
             for (int i = 0; i < historyDto.Count; i++)
@@ -138,6 +151,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("message")]
         public async Task<IActionResult> SendMessage([FromBody] MessageRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = _context.Users.FirstOrDefault(x => x.Id == UserId);
             if (user == null)
             {
@@ -155,8 +172,12 @@ namespace SBEU.Tasklet.Api.Controllers
         }
 
         [HttpDelete("message/{id}")]
-        public async Task<IActionResult> DeleteMessage(string id)
+        public async Task<IActionResult> DeleteMessage([StringLength(36)] string id)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {

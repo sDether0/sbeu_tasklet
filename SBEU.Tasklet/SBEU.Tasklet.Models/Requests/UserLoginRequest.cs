@@ -5,7 +5,7 @@ namespace SBEU.Tasklet.Models.Requests
 {
     public class UserLoginRequest
     {
-        [Required, NotNull]
+        [Required, NotNull, EmailAddress]
         public string Email { get; set; }
         [Required, NotNull]
         public string Password { get; set; }

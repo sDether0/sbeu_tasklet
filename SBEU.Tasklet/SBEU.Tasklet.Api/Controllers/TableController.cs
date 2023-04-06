@@ -44,6 +44,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] CreateTableRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FindAsync(UserId);
             if (user == null)
             {
@@ -66,6 +70,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPatch]
         public async Task<IActionResult> Update([FromBody] UpdateTableRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FindAsync(UserId);
             if (user == null)
             {
@@ -103,6 +111,10 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpPost("adduser")]
         public async Task<IActionResult> AddUser([FromBody] AddUserToTableRequest request)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == UserId);
             if (user == null)
             {
