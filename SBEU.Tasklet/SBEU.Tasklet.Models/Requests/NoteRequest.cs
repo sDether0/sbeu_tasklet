@@ -10,7 +10,7 @@ namespace SBEU.Tasklet.Models.Requests
 {
     public class NoteRequest
     {
-        [Required, NotNull, StringLength(36)]
+        [Required, NotNull, StringLength(36, MinimumLength = 36)]
         public string TaskId { get; set; }
         [Required, NotNull]
         public string Text { get; set; }

@@ -15,11 +15,11 @@ namespace SBEU.Tasklet.Models.Requests
     {
         [Required,NotNull]
         public string Text { get; set; }
-        [Required,NotNull, StringLength(36)]
+        [Required,NotNull, StringLength(36, MinimumLength = 36)]
         public string ChatId { get; set; }
-        [StringLength(36)]
+        [StringLength(36, MinimumLength = 36)]
         public string? TableId { get; set; }
-        [StringLength(36)]
+        [StringLength(36, MinimumLength = 36)]
         public string? TaskId { get; set; }
     }
 }

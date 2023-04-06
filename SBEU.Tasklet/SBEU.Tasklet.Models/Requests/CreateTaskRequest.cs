@@ -26,9 +26,9 @@ namespace SBEU.Tasklet.Models.Requests
         public string? Status { get; set; }
         [Required, NotNull]
         public required bool Hidden { get; set; }
-        [Required, NotNull,StringLength(36)]
+        [Required, NotNull,StringLength(36, MinimumLength = 36)]
         public required string TableId { get; set; }
-        [Required, NotNull, StringLength(36)]
+        [Required, NotNull, StringLength(36, MinimumLength = 36)]
         public required string ExecutorId { get; set; }
         [Required, NotNull]
         public required uint Price { get; set; }
