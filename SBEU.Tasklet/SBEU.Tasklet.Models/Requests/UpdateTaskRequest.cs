@@ -18,8 +18,8 @@ namespace SBEU.Tasklet.Models.Requests
         public string? Description { get; set; }
         public List<string>? Links { get; set; }
         public List<string>? Contents { get; set; }
-        public TaskDuration? Duration { get; set; }
-        public TaskProgress? Status { get; set; }
+        public uint? Duration { get; set; }
+        public string? Status { get; set; }
         public string? ExecutorId { get; set; }
     }
 }

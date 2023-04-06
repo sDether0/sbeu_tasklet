@@ -57,7 +57,8 @@ builder.Services.Configure<JwtConfig>(config =>
 var tempbuilder = new DbContextOptionsBuilder<ApiDbContext>();
 tempbuilder.UseNpgsql(connectionString);
 var tempdb = new ApiDbContext(tempbuilder.Options);
-await tempdb.Database.MigrateAsync();
+await DBPreparator.EnsureMigrate(tempdb);
+await DBPreparator.FromZeroAppend(tempdb);
 
 var key = Encoding.ASCII.GetBytes(Environment.GetEnvironmentVariable("SECRETJWT"));
 var tokenValidationParameters = new TokenValidationParameters

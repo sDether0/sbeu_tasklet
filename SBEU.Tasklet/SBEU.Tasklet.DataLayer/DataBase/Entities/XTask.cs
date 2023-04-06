@@ -1,6 +1,7 @@
 ﻿
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Diagnostics.CodeAnalysis;
 using SBEU.Tasklet.DataLayer.DataBase.Entities.Interfaces;
 using SBEU.Tasklet.Models.Enums;
@@ -21,8 +22,10 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public TimeSpan Duration { get; set; }
-        [DefaultValue(TaskProgress.New)]
-        public TaskProgress Status { get; set; }
+        //[DefaultValue(0)]
+        public long StatusId { get; set; }
+        [ForeignKey("StatusId")]
+        public virtual TaskProgress Status { get; set; }
         public bool Hidden { get; set; }
         public List<string> Links { get; set; }
         public uint Price { get; set; }

@@ -25,7 +25,7 @@ namespace SBEU.Tasklet.Models.Responses
         [NotNull]
         public uint Duration { get; set; }
         [NotNull]
-        public TaskProgress Status { get; set; }
+        public string Status { get; set; }
         public List<string> Links { get; set; }
         [NotNull]
         public bool Hidden { get; set; }

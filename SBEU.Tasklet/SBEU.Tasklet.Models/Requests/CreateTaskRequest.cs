@@ -23,7 +23,7 @@ namespace SBEU.Tasklet.Models.Requests
         public List<string>? Contents { get; set; }
         [Required, NotNull]
         public required uint Duration { get; set; }
-        public TaskProgress? Status { get; set; }
+        public string? Status { get; set; }
         [Required, NotNull]
         public required bool Hidden { get; set; }
         [Required, NotNull]

@@ -22,16 +22,19 @@ namespace SBEU.Tasklet.Api.Models
             CreateMap<XHistory, HistoryDto>();
             CreateMap<XTask, TaskDto>()
                 .ForMember(x => x.Note, s => s.Ignore())
+                .ForMember(x=>x.Status,s=>s.MapFrom(o=>o.Status.Status))
                 .ForMember(x => x.Duration, s => s.MapFrom(o => o.Duration.TotalHours));
             CreateMap<CreateTaskRequest, XTask>()
                 .ForMember(x => x.Executor, s => s.MapFrom(o => new XIdentityUser() { Id = o.ExecutorId }))
                 .ForMember(x => x.Table, s => s.MapFrom(o => new XTable() { Id = o.TableId }))
                 .ForMember(x => x.Duration, s => s.MapFrom(o => TimeSpan.FromHours(o.Duration)))
                 .ForMember(x=>x.Contents,s=>s.MapFrom(o=>o.Contents.Select(t=>new XContent(){Id=t})))
+                .ForMember(x=>x.Status, s=>s.MapFrom(o=>new TaskProgress(){Status = o.Status}))
                 .ForMember(x => x.Notes, s => s.Ignore());
             CreateMap<CreateTaskRequest, XHistory>()
                 .ForMember(x => x.UpdateDate, s => s.MapFrom(o => DateTime.UtcNow))
                 .ForMember(x => x.Contents, s => s.MapFrom(o => o.Contents.Select(t => new XContent() { Id = t })))
+                .ForMember(x=>x.Status,s=>s.MapFrom(o=>new TaskProgress(){Status = o.Status}))
                 .ForMember(x => x.Task, s => s.Ignore())
                 .ForMember(x=>x.Updater,s=>s.Ignore())
                 //.ForMember(x => x.IsDeleted, s => s.Ignore())

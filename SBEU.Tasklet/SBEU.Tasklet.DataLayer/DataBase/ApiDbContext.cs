@@ -3,7 +3,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-
+using SBEU.Exceptions;
 using SBEU.Tasklet.DataLayer.DataBase.Entities;
 
 namespace SBEU.Tasklet.DataLayer.DataBase
@@ -22,6 +22,7 @@ namespace SBEU.Tasklet.DataLayer.DataBase
         public virtual DbSet<XMessage> Messages { get; set; }
         public virtual DbSet<XContent> Contents { get; set; }
         public virtual DbSet<XHistory> History { get; set; }
+        public virtual DbSet<TaskProgress> TaskProgress { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -31,6 +32,7 @@ namespace SBEU.Tasklet.DataLayer.DataBase
             builder.Entity<Note>().HasIndex(x=>x.UserId);
             builder.Entity<XHistory>().Property(x=>x.Id).ValueGeneratedOnAdd();
             builder.Entity<XTask>().HasMany(x => x.Contents).WithMany();
+            builder.Entity<XTask>().HasOne(x=>x.Status).WithMany();
             builder.Entity<XHistory>().HasMany(x => x.Contents).WithMany();
             builder.Entity<XIdentityUser>().HasMany(x=>x.Notes).WithOne().HasForeignKey(x=>x.UserId);
             builder.Entity<XTask>().HasMany(x => x.Notes).WithOne().HasForeignKey(x => x.TaskId);
@@ -46,7 +48,12 @@ namespace SBEU.Tasklet.DataLayer.DataBase
     {
         public static T Get<T>(this string Id, ApiDbContext context) where T : class
         {
-           return context.Find<T>(Id)??throw new KeyNotFoundException();
+           return context.Find<T>(Id)??throw new EntityNotFoundException($"Entity {typeof(T)} not found");
+        }
+
+        public static TaskProgress GetProgress(this string status, ApiDbContext context)
+        {
+            return context.TaskProgress.FirstOrDefault(x => x.Status == status)??throw new EntityNotFoundException("Task status not found");
         }
     }
 

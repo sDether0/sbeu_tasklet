@@ -31,10 +31,14 @@ namespace SBEU.Tasklet.Api.Repositories
             _taskHub = taskHub;
         }
 
-        public async Task<XTask> CreateAsync(XTask entity, XIdentityUser user, XHistory history = null)
+        public async Task<XTask> CreateAsync(XTask entity, XIdentityUser user, XHistory history)
         {
             var task = new XTask();
             task.Id = Guid.NewGuid().ToString();
+            if (entity.Status is { Status: { } })
+            {
+                task.StatusId = entity.Status.Status.GetProgress(_context).Id;
+            }
 
             if (!_context.XTables.Any(x => x.Id == task.Table.Id))
             {
@@ -60,7 +64,9 @@ namespace SBEU.Tasklet.Api.Repositories
 
             history.Updater = user;
             history.Executor = task.Executor;
+            history.Status = task.Status;
             
+
             //await _context.XTasks.AddAsync(task);
             //await _context.SaveChangesAsync();
             var tableUsers = _context.XTables.FirstOrDefault(x => x.Id == task.Table.Id)?.Users
@@ -115,13 +121,13 @@ namespace SBEU.Tasklet.Api.Repositories
                     upTask.Executor = executor;
                 }
 
-                if (entity.Status is { } status && status != task.Status)
+                if (entity.Status is { } status && status.Status != task.Status.Status)
                 {
                     newst = true;
-
-                    task.Status = status;
-                    upTask.Status = status;
-                    if (status == TaskProgress.Done || status == TaskProgress.Closed)
+                    var tstatus = status.Status.GetProgress(_context);
+                    task.Status = tstatus;
+                    upTask.Status = tstatus;
+                    if (status.Status == "Done" || status.Status == "Closed")
                     {
                         task.EndTime = DateTime.UtcNow;
                     }

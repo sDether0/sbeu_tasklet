@@ -26,7 +26,7 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         public virtual XIdentityUser Updater { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public TaskProgress? Status { get; set; }
+        public virtual TaskProgress? Status { get; set; }
         public virtual XIdentityUser? Executor { get; set; }
         public virtual ICollection<XContent> Contents { get; set; }
     }

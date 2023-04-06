@@ -42,10 +42,10 @@ namespace SBEU.Tasklet.Api.Controllers
                     Chart = new ChartDto
                     {
                         TotalTaskCount = (uint)userTasks.Count,
-                        CompletedTaskCount = (uint)userTasks.Where(s => s.Status == TaskProgress.Done).ToList().Count,
-                        ClosedTaskCount = (uint)userTasks.Where(s => s.Status == TaskProgress.Closed).ToList().Count,
+                        CompletedTaskCount = (uint)userTasks.Where(s => s.Status.Status == TaskProgress.Done.ToString()).ToList().Count,
+                        ClosedTaskCount = (uint)userTasks.Where(s => s.Status.Status == TaskProgress.Closed.ToString()).ToList().Count,
                         AuthoredTaskCount = (uint)allTasks.Where(x => x.Author.Id == t.Id).ToList().Count,
-                        TotalPrice = (uint)userTasks.Where(x=>x.Status==TaskProgress.Done).Sum(x => x.Price)
+                        TotalPrice = (uint)userTasks.Where(x=>x.Status.Status==TaskProgress.Done.ToString()).Sum(x => x.Price)
                     }
                 };
             }).ToList()
@@ -71,10 +71,10 @@ namespace SBEU.Tasklet.Api.Controllers
                         {
                             Date = DateOnly.FromDateTime(group.Key),
                             TotalTaskCount = (uint)userTasks.Where(s=>s.EndTime.Value.Date == group.Key).Count(),
-                            CompletedTaskCount = (uint)userTasks.Where(s => s.Status == TaskProgress.Done && s.EndTime.Value.Date == group.Key).ToList().Count,
-                            ClosedTaskCount = (uint)userTasks.Where(s => s.Status == TaskProgress.Closed && s.EndTime.Value.Date == group.Key).ToList().Count,
+                            CompletedTaskCount = (uint)userTasks.Where(s => s.Status.Status == TaskProgress.Done.ToString() && s.EndTime.Value.Date == group.Key).ToList().Count,
+                            ClosedTaskCount = (uint)userTasks.Where(s => s.Status.Status == TaskProgress.Closed.ToString() && s.EndTime.Value.Date == group.Key).ToList().Count,
                             AuthoredTaskCount = (uint)allTasks.Where(x => x.Author.Id == t.Id && x.StartTime.Date == group.Key).ToList().Count,
-                            TotalPrice = (uint)userTasks.Where(x => x.Status == TaskProgress.Done && x.EndTime.Value.Date == group.Key).Sum(x => x.Price)
+                            TotalPrice = (uint)userTasks.Where(x => x.Status.Status == TaskProgress.Done.ToString() && x.EndTime.Value.Date == group.Key).Sum(x => x.Price)
                         }).ToList()
                     };
                 }).ToList();
@@ -105,10 +105,10 @@ namespace SBEU.Tasklet.Api.Controllers
                                 Chart = new ChartDto
                                 {
                                     TotalTaskCount = (uint)userTasks.Count,
-                                    CompletedTaskCount = (uint)userTasks.Where(a => a.Status == TaskProgress.Done).ToList().Count,
-                                    ClosedTaskCount = (uint)userTasks.Where(a => a.Status == TaskProgress.Closed).ToList().Count,
+                                    CompletedTaskCount = (uint)userTasks.Where(a => a.Status.Status == TaskProgress.Done.ToString()).ToList().Count,
+                                    ClosedTaskCount = (uint)userTasks.Where(a => a.Status.Status == TaskProgress.Closed.ToString()).ToList().Count,
                                     AuthoredTaskCount = (uint)tableTasks.Where(x => x.Author.Id == s.Id).ToList().Count,
-                                    TotalPrice = (uint)userTasks.Where(x => x.Status == TaskProgress.Done).Sum(x => x.Price)
+                                    TotalPrice = (uint)userTasks.Where(x => x.Status.Status == TaskProgress.Done.ToString()).Sum(x => x.Price)
                                 }
                             };
                         }).ToList()
@@ -128,11 +128,11 @@ namespace SBEU.Tasklet.Api.Controllers
             var chart = new TotalProgressChartDto
             {
                 TotalTaskCount = (uint)allTasks.Count,
-                DoneTaskCount = (uint)allTasks.Where(x => x.Status == TaskProgress.Done).ToList().Count,
-                DoingTaskCount = (uint)allTasks.Where(x => x.Status == TaskProgress.Doing).ToList().Count,
-                ReviewTaskCount = (uint)allTasks.Where(x => x.Status == TaskProgress.Review).ToList().Count,
-                ClosedTaskCount = (uint)allTasks.Where(x => x.Status == TaskProgress.Closed).ToList().Count,
-                NewTaskCount = (uint)allTasks.Where(x => x.Status == TaskProgress.New).ToList().Count,
+                DoneTaskCount = (uint)allTasks.Where(x => x.Status.Status == TaskProgress.Done.ToString()).ToList().Count,
+                DoingTaskCount = (uint)allTasks.Where(x => x.Status.Status == TaskProgress.Doing.ToString()).ToList().Count,
+                ReviewTaskCount = (uint)allTasks.Where(x => x.Status.Status == TaskProgress.Review.ToString()).ToList().Count,
+                ClosedTaskCount = (uint)allTasks.Where(x => x.Status.Status == TaskProgress.Closed.ToString()).ToList().Count,
+                NewTaskCount = (uint)allTasks.Where(x => x.Status.Status == TaskProgress.New.ToString()).ToList().Count,
             };
             return Json(chart);
         }

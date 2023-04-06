@@ -17,7 +17,7 @@ namespace SBEU.Tasklet.Models.Responses
         public UserDto Updater { get; set; }
         public string? Title { get; set; }
         public string? Description { get; set; }
-        public TaskProgress? Status { get; set; }
+        public string? Status { get; set; }
         public UserDto? Executor { get; set; }
         
     }
