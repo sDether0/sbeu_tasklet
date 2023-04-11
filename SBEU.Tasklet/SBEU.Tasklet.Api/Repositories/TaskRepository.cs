@@ -40,18 +40,18 @@ namespace SBEU.Tasklet.Api.Repositories
                 task.StatusId = entity.Status.Status.GetProgress(_context).Id;
             }
 
-            if (!_context.XTables.Any(x => x.Id == task.Table.Id))
+            if (!_context.XTables.Any(x => x.Id == entity.Table.Id))
             {
                 throw new EntityNotFoundException("Table not found");
             }
 
-            if (user.Tables.All(x => x.Id != task.Table.Id))
+            if (user.Tables.All(x => x.Id != entity.Table.Id))
             {
                 throw new NoAccessException("You has not access to that table");
             }
             task.Author = user;
             task.Table = task.Table.Id.Get<XTable>(_context);
-            if ((await _context.XTables.FindAsync(task.Table.Id))!.Users.All(x => x.Id != task.Executor.Id))
+            if ((await _context.XTables.FindAsync(entity.Table.Id))!.Users.All(x => x.Id != entity.Executor.Id))
             {
                 throw new NoAccessException("User has not access to that table");
             }
