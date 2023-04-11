@@ -50,12 +50,12 @@ namespace SBEU.Tasklet.Api.Repositories
                 throw new NoAccessException("You has not access to that table");
             }
             task.Author = user;
-            task.Table = task.Table.Id.Get<XTable>(_context);
+            task.Table = entity.Table.Id.Get<XTable>(_context);
             if ((await _context.XTables.FindAsync(entity.Table.Id))!.Users.All(x => x.Id != entity.Executor.Id))
             {
                 throw new NoAccessException("User has not access to that table");
             }
-            task.Executor = task.Executor.Id.Get<XIdentityUser>(_context);
+            task.Executor = entity.Executor.Id.Get<XIdentityUser>(_context);
             task.Status = entity.Status;
 
             task.StartTime = entity.StartTime is { } start ? start.ToUniversalTime() : DateTime.UtcNow;
