@@ -105,7 +105,10 @@ namespace SBEU.Tasklet.Api.Controllers
                 Private = request.Private,
                 Title = request.Title??"_"
             };
-            chat.Users.Add(user);
+            chat.Users = new HashSet<XIdentityUser>
+            {
+                user
+            };
             if (request.Private)
             {
                 if (request.UserIds.Count > 1 || request.UserIds.FirstOrDefault()==user.Id)
