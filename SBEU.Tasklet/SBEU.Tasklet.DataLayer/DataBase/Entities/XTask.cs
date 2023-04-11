@@ -22,7 +22,7 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         public DateTime StartTime { get; set; }
         public DateTime? EndTime { get; set; }
         public TimeSpan Duration { get; set; }
-        //[DefaultValue(0)]
+        [DefaultValue(0)]
         public long StatusId { get; set; }
         [ForeignKey("StatusId")]
         public virtual TaskProgress Status { get; set; }

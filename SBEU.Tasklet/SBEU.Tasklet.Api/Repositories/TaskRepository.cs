@@ -33,11 +33,11 @@ namespace SBEU.Tasklet.Api.Repositories
 
         public async Task<XTask> CreateAsync(XTask entity, XIdentityUser user, XHistory history)
         {
-            var task = new XTask();
-            task.Id = Guid.NewGuid().ToString();
+            //var entity = new XTask();
+            entity.Id = Guid.NewGuid().ToString();
             if (entity.Status is { Status: { } })
             {
-                task.StatusId = entity.Status.Status.GetProgress(_context).Id;
+                entity.StatusId = entity.Status.Status.GetProgress(_context).Id;
             }
 
             if (!_context.XTables.Any(x => x.Id == entity.Table.Id))
@@ -49,30 +49,30 @@ namespace SBEU.Tasklet.Api.Repositories
             {
                 throw new NoAccessException("You has not access to that table");
             }
-            task.Author = user;
-            task.Table = entity.Table.Id.Get<XTable>(_context);
+            entity.Author = user;
+            entity.Table = entity.Table.Id.Get<XTable>(_context);
             if ((await _context.XTables.FindAsync(entity.Table.Id))!.Users.All(x => x.Id != entity.Executor.Id))
             {
                 throw new NoAccessException("User has not access to that table");
             }
-            task.Executor = entity.Executor.Id.Get<XIdentityUser>(_context);
-            task.Status = entity.Status;
+            entity.Executor = entity.Executor.Id.Get<XIdentityUser>(_context);
+            entity.Status = entity.Status;
 
-            task.StartTime = entity.StartTime is { } start ? start.ToUniversalTime() : DateTime.UtcNow;
+            entity.StartTime = entity.StartTime is { } start ? start.ToUniversalTime() : DateTime.UtcNow;
             var contIds = entity.Contents.Select(x => x.Id);
-            task.Contents = _context.Contents.Where(x => contIds.Contains(x.Id)).ToList();
+            entity.Contents = _context.Contents.Where(x => contIds.Contains(x.Id)).ToList();
 
             history.Updater = user;
-            history.Executor = task.Executor;
-            history.Status = task.Status;
+            history.Executor = entity.Executor;
+            history.Status = entity.Status;
 
-            var result = await base.CreateAsync(task);
+            var result = await base.CreateAsync(entity);
             //await _context.XTasks.AddAsync(task);
             //await _context.SaveChangesAsync();
-            var tableUsers = _context.XTables.FirstOrDefault(x => x.Id == task.Table.Id)?.Users
+            var tableUsers = _context.XTables.FirstOrDefault(x => x.Id == entity.Table.Id)?.Users
                 .Select(x => x.Id) ?? Enumerable.Empty<string>();
 
-            await Notifier.FullNotify(task, _taskHub, tableUsers, user.Id);
+            await Notifier.FullNotify(entity, _taskHub, tableUsers, user.Id);
 
             
 
