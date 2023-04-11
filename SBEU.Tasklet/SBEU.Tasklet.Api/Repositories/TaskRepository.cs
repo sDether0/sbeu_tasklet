@@ -65,8 +65,8 @@ namespace SBEU.Tasklet.Api.Repositories
             history.Updater = user;
             history.Executor = task.Executor;
             history.Status = task.Status;
-            
 
+            var result = await base.CreateAsync(task);
             //await _context.XTasks.AddAsync(task);
             //await _context.SaveChangesAsync();
             var tableUsers = _context.XTables.FirstOrDefault(x => x.Id == task.Table.Id)?.Users
@@ -74,7 +74,7 @@ namespace SBEU.Tasklet.Api.Repositories
 
             await Notifier.FullNotify(task, _taskHub, tableUsers, user.Id);
 
-            var result = await base.CreateAsync(task);
+            
 
             history.Task = result;
             var ids = history.Contents.Select(x => x.Id);
@@ -143,7 +143,7 @@ namespace SBEU.Tasklet.Api.Repositories
                 }
 
                 upTask.Task = task;
-
+                var result = await base.UpdateAsync(task);
                 var tableUsers = _context.XTables.Include(x => x.Users).FirstOrDefault(x => x.Id == task.Table.Id)
                     ?.Users
                     .Select(x => x.Id) ?? Enumerable.Empty<string>();
@@ -156,7 +156,7 @@ namespace SBEU.Tasklet.Api.Repositories
                     await Notifier.SocketNotify(task, _taskHub, tableUsers);
                 }
 
-                var result = await base.UpdateAsync(task);
+                
                 if (upTask is { })
                 {
                     upTask.Task = result;

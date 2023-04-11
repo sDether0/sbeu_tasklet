@@ -69,8 +69,8 @@ namespace SBEU.Tasklet.Api.Repositories
             catch (Exception ex)
             {
                 Log.Error(ex, "Something was wrong in {@method} in class {@class}", nameof(CreateAsync), GetType().Name);
-                throw new CriticalRepositoryException(string.Format($"Something was wrong in {0} in class {1}",
-                    nameof(CreateAsync), GetType().Name));
+                throw  new CriticalRepositoryException(string.Format($"Something was wrong in {0} in class {1}",
+                    nameof(CreateAsync), GetType().Name),ex);
             }
         }
 

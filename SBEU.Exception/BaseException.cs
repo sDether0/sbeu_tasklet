@@ -14,7 +14,7 @@
 
     public class CriticalRepositoryException : BaseException
     {
-        public CriticalRepositoryException(string message) : base(message) { } 
+        public CriticalRepositoryException(string message, Exception? inner = null) : base(message,inner) { } 
     }
     public class NonDeletableEntityException : BaseException
     {
