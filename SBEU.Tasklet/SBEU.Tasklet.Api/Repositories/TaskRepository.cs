@@ -56,7 +56,7 @@ namespace SBEU.Tasklet.Api.Repositories
                 throw new NoAccessException("User has not access to that table");
             }
             entity.Executor = entity.Executor.Id.Get<XIdentityUser>(_context);
-            entity.Status = entity.Status;
+            //entity.Status = entity.Status;
 
             entity.StartTime = entity.StartTime is { } start ? start.ToUniversalTime() : DateTime.UtcNow;
             var contIds = entity.Contents.Select(x => x.Id);
