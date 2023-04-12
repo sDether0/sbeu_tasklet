@@ -65,7 +65,7 @@ namespace SBEU.Tasklet.Api.Repositories
             entity.Executor = entity.Executor.Id.Get<XIdentityUser>(_context);
             //entity.Status = entity.Status;
 
-            entity.StartTime = entity.StartTime is { } start ? start.ToUniversalTime() : DateTime.UtcNow;
+            entity.StartTime = DateTime.UtcNow;
             var contIds = entity.Contents.Select(x => x.Id);
             entity.Contents = _context.Contents.Where(x => contIds.Contains(x.Id)).ToList();
 

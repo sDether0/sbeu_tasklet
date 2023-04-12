@@ -59,7 +59,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("timeduserstotal")]
         public async Task<IActionResult> GetTimedChart()
         {
-            var allTasks = _context.XTasks.Include(x => x.Author).Include(x => x.Executor).ToList();
+            var allTasks = _context.XTasks.ToList();
             var users = _context.Users.ToList().Select(_mapper.Map<UserDto>);
 
             var chart = users.Select(t =>
@@ -87,8 +87,8 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("userstabledtotal")]
         public async Task<IActionResult> GetUsersTabletTotal()
         {
-            var allTasks = _context.XTasks.Include(x => x.Author).Include(x => x.Executor).Include(x => x.Table).ToList();
-            var tables = _context.XTables.Include(x=>x.Users).ToList();
+            var allTasks = _context.XTasks.ToList();
+            var tables = _context.XTables.ToList();
             var chart = new TotalTabledChartDto
             {
                 Chart = tables.Where(x=>x.Users.Count>0).Select(t =>
