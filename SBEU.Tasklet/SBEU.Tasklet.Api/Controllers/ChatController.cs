@@ -57,7 +57,18 @@ namespace SBEU.Tasklet.Api.Controllers
                 var last = _context.Messages?.Where(x => x.Chat.Id == chatsDto[i].Id)
                     ?.OrderByDescending(x => x.Time)?
                     .FirstOrDefault();
-                chatsDto[i].LastMessage = _mapper.Map<MessageDto>(last) ?? new MessageDto() { ChatId  = chatsDto[i].Id,Text = "There are no messages yet" , Id = -1,Self = false};
+                MessageDto? lastDto;
+                if (last != null)
+                {
+                    lastDto = _mapper.Map<MessageDto>(last);
+                    lastDto.Self = last.From.Id == UserId;
+                }
+                else
+                {
+                    lastDto = new MessageDto() { ChatId = chatsDto[i].Id, Text = "There are no messages yet", Id = -1, Self = false };
+                }
+
+                chatsDto[i].LastMessage = lastDto ;
             }
             return Json(chatsDto);
         }
