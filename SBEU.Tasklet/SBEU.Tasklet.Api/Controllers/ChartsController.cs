@@ -30,7 +30,7 @@ namespace SBEU.Tasklet.Api.Controllers
         public async Task<IActionResult> GetUsersTotal()
         {
             var allTasks = _context.XTasks.ToList();
-            var users = _context.Users.Select(_mapper.Map<UserDto>);
+            var users = _context.Users.ToList().Select(_mapper.Map<UserDto>);
 
             var chart = new TotalChartDto
             {
@@ -125,7 +125,7 @@ namespace SBEU.Tasklet.Api.Controllers
         [HttpGet("total")]
         public async Task<IActionResult> GetProgressChart()
         {
-            var allTasks = _context.XTasks.Include(x => x.Author).Include(x => x.Executor).ToList();
+            var allTasks = _context.XTasks.ToList();
             var chart = new TotalProgressChartDto
             {
                 TotalTaskCount = (uint)allTasks.Count,
