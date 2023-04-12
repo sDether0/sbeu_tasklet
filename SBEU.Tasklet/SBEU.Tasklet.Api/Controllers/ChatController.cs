@@ -50,11 +50,14 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 if (chatsDto[i].Private)
                 {
-                    chatsDto[i].Title = user.Chats!.FirstOrDefault(x => x.Id == chatsDto[i].Id)?.Users?.FirstOrDefault(x => x.Id != user.Id)?.UserName??"_";
+                    chatsDto[i].Title = user.Chats!.FirstOrDefault(x => x.Id == chatsDto[i].Id)?.Users
+                        ?.FirstOrDefault(x => x.Id != user.Id)?.UserName ?? "_";
                 }
 
-                chatsDto[i].LastMessage = _context.Messages?.Where(x => x.Chat.Id == chatsDto[i].Id)?.OrderByDescending(x => x.Time)?
-                    .FirstOrDefault()?.Text ?? "There are no messages yet";
+                var last = _context.Messages?.Where(x => x.Chat.Id == chatsDto[i].Id)
+                    ?.OrderByDescending(x => x.Time)?
+                    .FirstOrDefault();
+                chatsDto[i].LastMessage = _mapper.Map<MessageDto>(last) ?? new MessageDto() { ChatId  = chatsDto[i].Id,Text = "There are no messages yet" , Id = -1,Self = false};
             }
             return Json(chatsDto);
         }

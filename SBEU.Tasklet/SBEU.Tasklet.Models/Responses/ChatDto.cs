@@ -16,7 +16,7 @@ namespace SBEU.Tasklet.Models.Responses
         public string Title { get; set; }
         [NotNull]
         public bool Private { get; set; }       
-        public string LastMessage { get; set; }
+        public MessageDto LastMessage { get; set; }
         
     }
 

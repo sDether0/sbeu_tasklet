@@ -7,6 +7,7 @@ using System.Security.Claims;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SBEU.Tasklet.DataLayer.DataBase;
+using Serilog;
 
 namespace SBEU.Tasklet.Api.Hubs
 {
@@ -33,6 +34,7 @@ namespace SBEU.Tasklet.Api.Hubs
             {
                 var chats = _context.Users.Include(x => x.Chats).FirstOrDefault(x => x.Id==UserId)?.Chats.Select(x => x.Id) ??
                             Enumerable.Empty<string>();
+                Log.Information("User {UserId} connected",UserId);
                 foreach (var cht in chats)
                 {
                     Groups.AddToGroupAsync(Context.ConnectionId, cht);

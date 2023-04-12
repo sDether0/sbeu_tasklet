@@ -9,6 +9,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace SBEU.Tasklet.Api.Hubs
 {
@@ -33,6 +34,7 @@ namespace SBEU.Tasklet.Api.Hubs
         {
             var tables = _context.Users.Include(x => x.Tables).FirstOrDefault(x => x.Id == UserId)?.Tables
                 .Select(x => x.Id) ?? Enumerable.Empty<string>();
+            Log.Information("User {UserId} connected", UserId);
             foreach (var tbl in tables)
             {
                 Groups.AddToGroupAsync(Context.ConnectionId, tbl);

@@ -27,4 +27,13 @@ namespace SBEU.Tasklet.Models.Responses
         [NotNull]
         public bool Self { get; set; }
     }
+
+    public static class DtoExt
+    {
+        public static T CopyWith<T>(this T message, Action<T> act)
+        {
+            act(message);
+            return message;
+        }
+    }
 }
