@@ -30,9 +30,9 @@ namespace SBEU.Tasklet.Models.Responses
 
     public static class DtoExt
     {
-        public static T CopyWith<T>(this T message, Action<T> act)
+        public static T CopyWith<T>(this T message, Func<T,T> act)
         {
-            act(message);
+            message = act(message);
             return message;
         }
     }
