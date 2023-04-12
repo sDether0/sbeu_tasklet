@@ -37,7 +37,14 @@ namespace SBEU.Tasklet.Api.Repositories
             entity.Id = Guid.NewGuid().ToString();
             if (entity.Status is { Status: { } })
             {
-                entity.StatusId = entity.Status.Status.GetProgress(_context).Id;
+                var status = entity.Status.Status.GetProgress(_context);
+                entity.StatusId = status.Id;
+                entity.Status = status;
+            }
+            else
+            {
+                entity.StatusId = 0;
+                entity.Status = "New".GetProgress(_context);
             }
 
             if (!_context.XTables.Any(x => x.Id == entity.Table.Id))
@@ -125,6 +132,7 @@ namespace SBEU.Tasklet.Api.Repositories
                 {
                     newst = true;
                     var tstatus = status.Status.GetProgress(_context);
+                    task.StatusId = tstatus.Id;
                     task.Status = tstatus;
                     upTask.Status = tstatus;
                     if (status.Status == "Done" || status.Status == "Closed")
