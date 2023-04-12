@@ -55,7 +55,7 @@ builder.Services.Configure<JwtConfig>(config =>
 });
 
 var tempbuilder = new DbContextOptionsBuilder<ApiDbContext>();
-tempbuilder.UseNpgsql(connectionString);
+tempbuilder.UseLazyLoadingProxies().UseNpgsql(connectionString);
 var tempdb = new ApiDbContext(tempbuilder.Options);
 await DBPreparator.EnsureMigrate(tempdb);
 await DBPreparator.FromZeroAppend(tempdb);
