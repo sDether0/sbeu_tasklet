@@ -43,6 +43,7 @@ namespace SBEU.Tasklet.Api.Models
                 .ForMember(x => x.Author, s => s.Ignore())
                 .ForMember(x => x.Executor, s => s.MapFrom(o => o.ExecutorId != null ? new XIdentityUser() { Id = o.ExecutorId } : null))
                 .ForMember(x => x.Contents, s => s.MapFrom(o => o.Contents.Select(t => new XContent() { Id = t })))
+                .ForMember(x => x.Status, s => s.MapFrom(o => new TaskProgress() { Status = o.Status }))
                 .ForMember(x => x.History, s => s.Ignore())
                 .ForMember(x => x.Notes, s => s.Ignore())
                 .ForMember(x => x.Table, s => s.Ignore());
