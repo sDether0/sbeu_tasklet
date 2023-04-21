@@ -10,9 +10,17 @@ namespace SBEU.Tasklet.Api.Service
         {
             get
             {
-                var claimIdentity = this.User.Identity as ClaimsIdentity;
-                var userId = claimIdentity.Claims.First(x => x.Type == "Id").Value;
-                return userId;
+                try
+                {
+                    var claimIdentity = this.User.Identity as ClaimsIdentity;
+                    var userId = claimIdentity.Claims.First(x => x.Type == "Id").Value;
+                    return userId;
+                }
+                catch
+                {
+                    HttpContext.Abort();
+                    return null;
+                }
             }
         }
     }
