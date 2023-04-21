@@ -21,6 +21,7 @@ using SBEU.Tasklet.DataLayer.DataBase.Entities;
 using StackExchange.Redis;
 using Serilog;
 using Serilog.Events;
+using Microsoft.Extensions.Logging;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -174,6 +175,28 @@ app.Urls.Add("http://0.0.0.0:54542");
     app.UseSwagger();
     app.UseSwaggerUI();
 //}
+app.Use(async (context, next) =>
+{
+    var logger = Log.Logger;
+
+    try
+    {
+        var requestModel = await GetRequestModelAsync(context);
+        var queryParameters = context.Request.QueryString.Value;
+
+        await next.Invoke();
+
+        logger.Information("{Method} {Path}{QueryParameters} {StatusCode} {RequestModel}", context.Request.Method, context.Request.Path, queryParameters, context.Response.StatusCode, requestModel);
+    }
+    catch (Exception ex)
+    {
+        var requestModel = await GetRequestModelAsync(context);
+        var queryParameters = context.Request.QueryString.Value;
+
+        logger.Error(ex, "{Method} {Path}{QueryParameters} {StatusCode} {RequestModel}", context.Request.Method, context.Request.Path, queryParameters, context.Response.StatusCode, requestModel);
+        throw;
+    }
+});
 
 app.UseCors();
 app.UseAuthorization();
@@ -185,3 +208,23 @@ Notifier.SetMapper(app.Services.GetRequiredService<IMapper>());
 var d= app.Services.GetRequiredService<DeadLiner>();
 d.Start();
 app.Run();
+
+
+static async Task<string> GetRequestModelAsync(HttpContext context)
+{
+    var request = context.Request;
+
+    if (request.Body == null || !request.Body.CanSeek)
+    {
+        return null;
+    }
+
+    request.EnableBuffering();
+
+    using (var reader = new StreamReader(request.Body, encoding: Encoding.UTF8, detectEncodingFromByteOrderMarks: false, bufferSize: 1024, leaveOpen: true))
+    {
+        var requestBody = await reader.ReadToEndAsync();
+        request.Body.Position = 0;
+        return requestBody;
+    }
+}

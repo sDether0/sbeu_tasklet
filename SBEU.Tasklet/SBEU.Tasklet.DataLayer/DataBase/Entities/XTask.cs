@@ -10,13 +10,6 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
 {
     public class XTask : DeletableEntity
     {
-        public XTask()
-        {
-            //Contents ??= new HashSet<XContent>();
-            //Notes ??= new HashSet<Note>();
-            //History ??= new HashSet<XHistory>();
-            //Links ??= new List<string>();
-        }
         public string Title { get; set; }
         public string Description { get; set; }
         public DateTime StartTime { get; set; }
