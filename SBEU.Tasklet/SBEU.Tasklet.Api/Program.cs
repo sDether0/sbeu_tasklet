@@ -141,7 +141,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             //policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
-            policy.WithOrigins("https://fasttasks.sbeusilent.space").AllowAnyMethod().AllowAnyHeader().AllowCredentials();
+            policy.SetIsOriginAllowed(x=>true).AllowAnyMethod().AllowAnyHeader().AllowCredentials();
         });
 });
 builder.Services.AddDefaultIdentity<XIdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)

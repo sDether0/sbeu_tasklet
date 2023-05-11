@@ -13,10 +13,6 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
 {
     public class XHistory : IEntity
     {
-        public XHistory()
-        {
-            //Contents ??= new HashSet<XContent>();
-        }
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public long Id { get; set; }

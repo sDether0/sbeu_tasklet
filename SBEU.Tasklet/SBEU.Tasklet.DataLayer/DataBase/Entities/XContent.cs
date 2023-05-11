@@ -13,6 +13,5 @@ namespace SBEU.Tasklet.DataLayer.DataBase.Entities
         public string Name { get; set; }
         public string Extension { get; set; }
         public XContentType ContentType { get; set; }
-
     }
 }
