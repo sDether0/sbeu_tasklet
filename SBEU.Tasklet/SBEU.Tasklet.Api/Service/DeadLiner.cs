@@ -27,8 +27,11 @@ namespace SBEU.Tasklet.Api.Service
                 await context.XTasks.LoadAsync();
                 var tasks = await context.XTasks.Include(x=>x.Executor).ToListAsync();
 
-                var dead2h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 2);
-                var dead8h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 8 && !_black8.Contains(task.Id)).Except(dead2h);
+                var dead2h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 2 &&
+                                                 (DateTime.Now - (task.StartTime + task.Duration)).Hours>0);
+                var dead8h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 8 &&
+                                                 (DateTime.Now - (task.StartTime + task.Duration)).Hours > 0 && 
+                                                 !_black8.Contains(task.Id)).Except(dead2h);
                 _black8.AddRange(dead8h.Select(x=>x.Id));
                 
                 MulticastMessage message;
