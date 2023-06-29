@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
-
+using Microsoft.IdentityModel.Tokens;
 using Org.BouncyCastle.Asn1.Ocsp;
 
 using SBEU.Exceptions;
@@ -141,7 +141,7 @@ namespace SBEU.Tasklet.Api.Repositories
                     }
                 }
 
-                task.Links = entity.Links ?? task.Links;
+                task.Links = entity.Links.IsNullOrEmpty()?task.Links:entity.Links;
                 if (entity.Contents is { } contents && contents != task.Contents.Select(x => x.Id))
                 {
                     var ids = contents.Select(x => x.Id);
