@@ -33,7 +33,10 @@ namespace SBEU.Tasklet.Api.Service
                                                  (DateTime.Now - (task.StartTime + task.Duration)).Hours > 0 && 
                                                  !_black8.Contains(task.Id)).Except(dead2h);
                 _black8.AddRange(dead8h.Select(x=>x.Id));
-                
+
+                await context.XTasks.Where(x => (DateTime.Now - (x.StartTime + x.Duration)).Hours > 9)
+                    .ForEachAsync(x => _black8.Remove(x.Id));
+
                 MulticastMessage message;
                 message = new MulticastMessage()
                 {
