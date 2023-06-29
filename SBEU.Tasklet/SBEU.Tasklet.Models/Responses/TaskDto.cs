@@ -25,7 +25,7 @@ namespace SBEU.Tasklet.Models.Responses
         [NotNull]
         public uint Duration { get; set; }
         [NotNull]
-        public string Status { get; set; }
+        public StatusDto Status { get; set; }
         public List<string> Links { get; set; }
         [NotNull]
         public bool Hidden { get; set; }
@@ -42,5 +42,11 @@ namespace SBEU.Tasklet.Models.Responses
         public uint Price { get; set; }
         public List<ContentDto> Contents { get; set; }
         public List<HistoryDto> History { get; set; }
+    }
+
+    public class StatusDto
+    {
+        public long Id { get; set; }
+        public string Status { get; set; }
     }
 }

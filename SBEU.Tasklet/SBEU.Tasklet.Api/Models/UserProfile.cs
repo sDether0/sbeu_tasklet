@@ -18,12 +18,12 @@ namespace SBEU.Tasklet.Api.Models
             CreateMap<XTable, TableDto>();
             CreateMap<XTable, SmallTableDto>();
             CreateMap<CreateTableRequest, XTable>();
+            CreateMap<TaskProgress, StatusDto>();
             Console.WriteLine("task");
             CreateMap<XHistory, HistoryDto>()
                 .ForMember(x => x.Status, s => s.MapFrom(o => o.Status.Status));
             CreateMap<XTask, TaskDto>()
                 .ForMember(x => x.Note, s => s.Ignore())
-                .ForMember(x=>x.Status,s=>s.MapFrom(o=>o.Status.Status))
                 .ForMember(x => x.Duration, s => s.MapFrom(o => o.Duration.TotalHours));
             CreateMap<CreateTaskRequest, XTask>()
                 .ForMember(x => x.Executor, s => s.MapFrom(o => new XIdentityUser() { Id = o.ExecutorId }))
