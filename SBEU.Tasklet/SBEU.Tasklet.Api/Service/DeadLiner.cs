@@ -9,6 +9,8 @@ namespace SBEU.Tasklet.Api.Service
 {
     public class DeadLiner
     {
+        private List<string> _black8 = new();
+
         private readonly PeriodicTimer _deadTimer = new PeriodicTimer(TimeSpan.FromMinutes(20));
         private readonly IServiceScopeFactory scopeFactory;
         public DeadLiner(IServiceScopeFactory scopeFactory)
@@ -24,8 +26,10 @@ namespace SBEU.Tasklet.Api.Service
                 using var context = scopeFactory.CreateScope().ServiceProvider.GetRequiredService<ApiDbContext>();
                 await context.XTasks.LoadAsync();
                 var tasks = await context.XTasks.Include(x=>x.Executor).ToListAsync();
+
                 var dead2h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 2);
-                var dead8h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 8);
+                var dead8h = tasks.Where(task => (DateTime.Now - (task.StartTime + task.Duration)).Hours < 8 && !_black8.Contains(task.Id)).Except(dead2h);
+                _black8.AddRange(dead8h.Select(x=>x.Id));
                 
                 MulticastMessage message;
                 message = new MulticastMessage()
