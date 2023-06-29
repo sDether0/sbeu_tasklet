@@ -49,7 +49,7 @@ namespace SBEU.Tasklet.Api.Controllers
             {
                 return NotFound();
             }
-            var tasks = (await _tasks.GetAllAsync()).Skip(skip).Take(take).ToList().Concat(user.AuthoredTasks.ToList()).Distinct().ToList();
+            var tasks = (await _tasks.GetAllAsync()).Where(x=>x.Executor == user).ToList().Concat(user.AuthoredTasks.ToList()).Distinct().Skip(skip).Take(take).ToList();
             //var tasks = user.Tasks.Concat(user.AuthoredTasks).Distinct().Skip(skip).Take(take);
             var tasksDto = tasks.Select(_mapper.Map<TaskDto>).ToList();
             for (var i = 0; i < tasksDto.Count; i++)

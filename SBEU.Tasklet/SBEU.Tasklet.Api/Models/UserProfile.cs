@@ -19,7 +19,8 @@ namespace SBEU.Tasklet.Api.Models
             CreateMap<XTable, SmallTableDto>();
             CreateMap<CreateTableRequest, XTable>();
             Console.WriteLine("task");
-            CreateMap<XHistory, HistoryDto>();
+            CreateMap<XHistory, HistoryDto>()
+                .ForMember(x => x.Status, s => s.MapFrom(o => o.Status.Status));
             CreateMap<XTask, TaskDto>()
                 .ForMember(x => x.Note, s => s.Ignore())
                 .ForMember(x=>x.Status,s=>s.MapFrom(o=>o.Status.Status))
