@@ -23,7 +23,7 @@ namespace SBEU.Tasklet.Api.Models
             CreateMap<XHistory, HistoryDto>()
                 .ForMember(x => x.Status, s => s.MapFrom(o => o.Status.Status));
             CreateMap<XTask, TaskDto>()
-                .ForMember(x=>x.Links,s=>s.MapFrom(o=>o.Contents.Select(x=>"https://sbeusilent.space/media/"+x.Id)))
+                .ForMember(x=>x.Links,s=>s.MapFrom(o=>o.Links.Select(x=>"https://sbeusilent.space/media/"+x)))
                 .ForMember(x => x.Note, s => s.Ignore())
                 .ForMember(x => x.Duration, s => s.MapFrom(o => o.Duration.TotalHours));
             CreateMap<CreateTaskRequest, XTask>()
