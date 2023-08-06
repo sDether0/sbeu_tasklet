@@ -2,7 +2,8 @@
 using AutoMapper;
 
 using FirebaseAdmin.Messaging;
-
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +22,7 @@ namespace SBEU.Tasklet.Api.Controllers
 {
     [ApiController]
     [Route("[controller]")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class TaskController : ControllerExt
     {
         private readonly ApiDbContext _context;
